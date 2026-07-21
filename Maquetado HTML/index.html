@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alta de Colaborador — Maqueta (estilo el Salar)</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="frame">
+
+  <!-- ===================== ENCABEZADO DEL SISTEMA ===================== -->
+  <header class="topbar">
+    <div class="brand">salar <span>Software de RRHH</span></div>
+    <div class="user-panel">
+      <div class="user-row"><strong>Sara Navarro Lamas</strong> <button class="btn btn-sm">Cerrar sesión</button></div>
+      <div class="user-meta">Cargo &nbsp;&nbsp;Almacenero I</div>
+      <div class="user-meta">Oficina &nbsp;Torre Berlin</div>
+    </div>
+  </header>
+  <div class="breadcrumb">Movimientos <span>›</span> Altas</div>
+  <div class="screen-title">Modificar colaborador <button class="btn-help">? Ayuda de la pantalla</button></div>
+
+  <div class="layout">
+
+    <!-- ===================== BARRA LATERAL ===================== -->
+    <aside class="sidebar">
+      <div class="nav-title"><span>COLABORADORES</span><span class="nav-caret">▾</span></div>
+      <div class="nav-item"><span>Parámetros</span><span class="nav-caret">▸</span></div>
+      <div class="nav-item"><span>Consultar y modificar</span></div>
+      <div class="nav-item"><span>Modificar masivamente</span></div>
+      <div class="nav-item"><span>Modificar por lote</span></div>
+      <div class="nav-item"><span>Asignar unidades de negocio por colaborador</span></div>
+      <div class="nav-item"><span>Registrar hijos por lote</span></div>
+      <div class="nav-item"><span>Registrar herederos por lote</span></div>
+      <div class="nav-item"><span>Registrar garantes por lote</span></div>
+      <div class="nav-item"><span>Reportes</span><span class="nav-caret">▸</span></div>
+
+      <div class="nav-group"><span>ORGANIZACIÓN</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>DOCUMENTACIÓN</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>MOVIMIENTOS</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>ASISTENCIA</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>COMEDOR</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>CAPACITACIONES</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>SUELDOS Y SALARIOS</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>OTRAS REMUNERACIONES</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>CONTABILIDAD</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>SEGURIDAD</span><span class="nav-caret">▸</span></div>
+      <div class="nav-group"><span>DESEMPEÑO</span><span class="nav-caret">▸</span></div>
+    </aside>
+
+    <!-- ===================== PANEL PRINCIPAL ===================== -->
+    <main class="main">
+      <div class="main-intro">Consulte o gestione la información disponible.</div>
+
+      <div class="toolbar">
+        <button class="btn" onclick="expandAll(true)">Expandir todo <span class="caret">▾</span></button>
+        <button class="btn" onclick="expandAll(false)">Colapsar todo <span class="caret">▴</span></button>
+        <button class="btn">Emitir contrato</button>
+        <button class="btn">Emitir certificado</button>
+        <button class="btn">Guardar</button>
+        <button class="btn">Guardar y registrar otro</button>
+        <button class="btn">Exportar histórico</button>
+        <button class="btn">Volver</button>
+      </div>
+
+      <!-- Reingreso -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> REINGRESO DE COLABORADOR</div>
+        <div class="subsection active">
+          <div class="sub-body" style="display:block; border-top:none;">
+            <div class="field full" style="margin-bottom:14px;">
+              <div class="radio-row" style="justify-content:space-between;">
+                <label style="flex:1;">¿Se trata de un colaborador actualmente retirado pero previamente registrado en esta u otra empresa del grupo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="reingreso" value="si" onchange="toggleReingreso(true)"> SÍ</label>
+                  <label><input type="radio" name="reingreso" value="no" checked onchange="toggleReingreso(false)"> NO</label>
+                </span>
+              </div>
+            </div>
+            <div id="reingreso-detalle" class="field-grid" style="display:none;">
+              <div class="field">
+                <label>Empresa <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>DEMO</option>
+                  <option>OTRO DEMO</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Colaborador <span class="req">(*)</span></label>
+                <input type="text" list="colab-reingreso" placeholder="Escriba el nombre…" autocomplete="off">
+                <datalist id="colab-reingreso">
+                  <option value="Serrano Alvarado Javier Andre (retiro 14/01/2020)"></option>
+                </datalist>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== INFORMACIÓN PERSONAL ===== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> INFORMACIÓN PERSONAL <span class="req">(*)</span></div>
+
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Datos personales <span class="req">(*)</span></div>
+          <div class="sub-body">
+
+          <!-- ===== Nombre + Fotografía ===== -->
+          <div class="row-with-photo">
+            <div class="field-grid">
+              <div class="field">
+                <label>1er Nombre <span class="req">*</span></label>
+                <input type="text" value="Javier">
+              </div>
+              <div class="field">
+                <label>2do Nombre</label>
+                <input type="text" value="Andre">
+              </div>
+              <div class="field">
+                <label>3er Nombre</label>
+                <input type="text">
+              </div>
+              <div class="field">
+                <label>Ap. paterno</label>
+                <input type="text" value="Serrano">
+              </div>
+              <div class="field">
+                <label>Ap. materno</label>
+                <input type="text" value="Alvarado">
+              </div>
+              <div class="field">
+                <label>Ap. casada</label>
+                <input type="text">
+              </div>
+
+              <!-- Condicional: Personalizar nombre completo -->
+              <div class="field">
+                <label>¿Personalizar nombre completo?</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="personalizar" value="si" onchange="togglePersonalizar(true)"> SÍ</label>
+                  <label><input type="radio" name="personalizar" value="no" checked onchange="togglePersonalizar(false)"> NO</label>
+                </div>
+              </div>
+              <div class="field" id="nombre-completo-wrap" style="display:none;">
+                <label>Nombre completo <span class="req">*</span></label>
+                <input type="text" placeholder="Se habilita al personalizar">
+              </div>
+            </div>
+
+            <!-- Fotografía -->
+            <div class="photo-box">
+              <label>Fotografía:</label>
+              <div class="photo-actions">
+                <button class="btn btn-sm" type="button">Cargar</button>
+                <button class="btn btn-sm" type="button">Quitar</button>
+              </div>
+              <div class="photo-preview">sin<br>foto</div>
+            </div>
+          </div>
+
+          <!-- ===== Documento de identidad ===== -->
+          <div class="field-grid" style="margin-top:12px;">
+            <div class="field">
+              <label>Doc. Ident. <span class="req">*</span></label>
+              <input type="text" value="7823795">
+            </div>
+            <div class="field">
+              <label>Extensión <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>Beni</option>
+                <option>Cochabamba</option>
+                <option>Chuquisaca</option>
+                <option>Extranjero</option>
+                <option>La Paz</option>
+                <option>No aplica</option>
+                <option>Oruro</option>
+                <option>Pando</option>
+                <option>Potosí</option>
+                <option selected>Santa Cruz</option>
+                <option>Tarija</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo doc. <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Carnet de identidad</option>
+                <option>Pasaporte</option>
+                <option>RUN</option>
+                <option>Carnet de extranjero</option>
+                <option>Otro</option>
+                <option>Certificado de nacimiento</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Adicional SEGIP</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Venc. documento</label>
+              <input type="date" value="2024-07-18">
+            </div>
+            <!-- Condicional: Documento secundario -->
+            <div class="field">
+              <label>¿Documento secundario?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="docsec" value="si" onchange="toggleDocSec(true)"> SÍ</label>
+                <label><input type="radio" name="docsec" value="no" checked onchange="toggleDocSec(false)"> NO</label>
+              </div>
+            </div>
+            <!-- Reveal: al marcar SÍ aparece un segundo documento -->
+            <div class="field full" id="docsec-wrap" style="display:none;">
+              <div class="field-subtitle">Documento secundario</div>
+              <div class="field-grid cols-3" style="margin-top:8px;">
+                <div class="field">
+                  <label>Doc. Ident. <span class="req">*</span></label>
+                  <input type="text">
+                </div>
+                <div class="field">
+                  <label>Extensión <span class="req">*</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
+                    <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
+                    <option>Oruro</option><option>Pando</option><option>Potosí</option>
+                    <option>Santa Cruz</option><option>Tarija</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Tipo doc. <span class="req">*</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Carnet de identidad</option><option>Pasaporte</option><option>RUN</option>
+                    <option>Carnet de extranjero</option><option>Otro</option><option>Certificado de nacimiento</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Adicional SEGIP</label>
+                  <input type="text">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Nacimiento / filiación ===== -->
+          <div class="field-grid cols-3" style="margin-top:2px;">
+            <div class="field">
+              <label>Fec. nacimiento <span class="req">*</span></label>
+              <input type="date" value="1994-05-22">
+            </div>
+            <div class="field">
+              <label>Nombre del padre</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Nombre de la madre</label>
+              <input type="text">
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label>País nacionalidad <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>ARGENTINA</option>
+                <option selected>BOLIVIANA</option>
+                <option>BRASILERA</option>
+                <option>CHILENA</option>
+                <option>COLOMBIANA</option>
+                <option>ECUATORIANA</option>
+                <option>ESPAÑA</option>
+                <option>ESTADOUNIDENSE</option>
+                <option>ITALIANA</option>
+                <option>MEXICANA</option>
+                <option>NICARAGÜENSE</option>
+                <option>PARAGUAYA</option>
+                <option>PERUANA</option>
+                <option>URUGUAYA</option>
+                <option>VENEZOLANA</option>
+              </select>
+            </div>
+            <!-- Condicional: Nacionalidad boliviana (independiente del país) -->
+            <div class="field">
+              <label>¿Nacionalidad boliviana?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="nacbol" value="si" checked onchange="toggleNacBol(true)"> SÍ</label>
+                <label><input type="radio" name="nacbol" value="no" onchange="toggleNacBol(false)"> NO</label>
+              </div>
+            </div>
+            <div class="field full" id="nacbol-wrap" style="display:none;">
+              <!-- PENDIENTE: capturar el escenario "¿Nacionalidad boliviana? = NO" (aún no visto) -->
+              <em class="hint">Escenario "NO" pendiente de captura.</em>
+            </div>
+
+            <div class="field full">
+              <label>Lugar de nacimiento</label>
+              <input type="text" value="Santa Cruz">
+            </div>
+
+            <div class="field">
+              <label>Sexo</label>
+              <div class="radio-row">
+                <label><input type="radio" name="sexo" value="m" checked> M</label>
+                <label><input type="radio" name="sexo" value="f"> F</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Estado civil <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Soltero(a)</option>
+                <option>Casado(a)</option>
+                <option>Divorciado(a)</option>
+                <option>Viudo(a)</option>
+                <option>Separado(a)</option>
+                <option>Unión libre</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Lic. de conducir</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Venc. licencia</label>
+              <input type="date">
+            </div>
+
+            <div class="field">
+              <label>Teléfono fijo</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Teléfono móvil</label>
+              <input type="text" value="76316567">
+            </div>
+
+            <div class="field full">
+              <label>Dirección <span class="req">*</span></label>
+              <input type="text" value="Av. Mutualista Calle Cuquisas #2020">
+            </div>
+
+            <div class="field">
+              <label>Ciudad o localidad <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <!-- Lista real = todos los municipios de Bolivia (cientos). Muestra representativa: -->
+                <option selected>Santa Cruz de la Sierra</option>
+                <option>Santa Rosa</option>
+                <option>La Paz</option>
+                <option>Cochabamba</option>
+                <option>Sucre</option>
+                <option>Oruro</option>
+                <option>Potosí</option>
+                <option>Tarija</option>
+                <option>Trinidad</option>
+                <option>Cobija</option>
+                <option>El Alto</option>
+                <option>Montero</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Zona</label>
+              <input type="text">
+            </div>
+
+            <div class="field full">
+              <label>Ubicación GPS domicilio</label>
+              <div style="display:flex; align-items:center; gap:16px;">
+                <span class="readonly-line">Latitud: ----, &nbsp; Longitud: ----</span>
+                <button class="btn btn-sm" type="button" title="Abre un modal de Google Maps (Mapa/Satélite)">Configurar</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Profesión u oficio</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Matrícula profesional</label>
+              <input type="text">
+            </div>
+
+            <div class="field">
+              <label>¿Vivienda propia?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="vivienda" value="si"> SÍ</label>
+                <label><input type="radio" name="vivienda" value="no"> NO</label>
+                <label><input type="radio" name="vivienda" value="desc" checked> Desconocido</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Vehículo propio?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="vehiculo" value="si"> SÍ</label>
+                <label><input type="radio" name="vehiculo" value="no"> NO</label>
+                <label><input type="radio" name="vehiculo" value="desc" checked> Desconocido</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Correo</label>
+              <input type="email" value="javserralv.222@gmail.com">
+            </div>
+
+            <div class="field">
+              <label>Tipo de sangre</label>
+              <select>
+                <option value="" selected>&lt;SELECCIONE&gt;</option>
+                <option>A</option><option>B</option><option>AB</option><option>O</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Factor</label>
+              <select>
+                <option value="" selected>&lt;SELECCIONE&gt;</option>
+                <option>Positivo</option><option>Negativo</option>
+              </select>
+            </div>
+          </div>
+
+          </div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Cónyuge</div>
+          <div class="sub-body"><em class="hint">Pendiente de maquetar — enviar captura de la sección.</em></div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Contacto de emergencia</div>
+          <div class="sub-body"><em class="hint">Pendiente de maquetar — enviar captura de la sección.</em></div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Detalle de garante</div>
+          <div class="sub-body"><em class="hint">Pendiente de maquetar — enviar captura de la sección.</em></div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Detalle de hijos</div>
+          <div class="sub-body"><em class="hint">Pendiente de maquetar — enviar captura de la sección.</em></div>
+        </div>
+      </div>
+
+      <!-- ===== INFORMACIÓN LABORAL ===== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> INFORMACIÓN LABORAL <span class="req">(*)</span></div>
+
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Datos laborales básicos <span class="req">(*)</span></div>
+          <div class="sub-body">
+          <div class="field-grid cols-3">
+            <div class="field">
+              <label>Cod. colaborador <span class="req">*</span></label>
+              <input type="text" value="1">
+            </div>
+            <div class="field"></div>
+            <div class="field">
+              <label>Primer fecha de ingreso</label>
+              <span class="readonly-line">01/04/2020</span>
+            </div>
+
+            <div class="field">
+              <label>Fec. ingreso <span class="req">*</span></label>
+              <input type="date" value="2020-04-01">
+            </div>
+            <div class="field">
+              <label>Fec. ingreso vacaciones <span class="req">*</span></label>
+              <input type="date" value="2021-01-04">
+            </div>
+            <div class="field">
+              <label>Fec. ingreso antigüedad vacaciones <span class="req">*</span></label>
+              <input type="date" value="2021-01-04">
+            </div>
+
+            <div class="field">
+              <label>Fec. ingreso caja salud <span class="req">*</span></label>
+              <input type="date" value="2020-04-01">
+            </div>
+            <div class="field">
+              <label>Fec. ingreso para bono de antigüedad <span class="req">*</span></label>
+              <input type="date" value="2021-01-04">
+            </div>
+            <div class="field">
+              <label>Días de antigüedad adicional <span class="req">*</span></label>
+              <input type="number" value="0">
+            </div>
+
+            <div class="field">
+              <label>Motivo de movimiento de ingreso <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>NO ESPECIFICADO</option>
+                <option>Renuncia 110</option>
+              </select>
+            </div>
+            <div class="field"></div>
+            <div class="field"></div>
+
+            <div class="field">
+              <label>Modalidad de trabajo <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>No especificado</option>
+                <option selected>Presencial</option>
+                <option>Remoto</option>
+                <option>Semipresencial</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Teléfono fijo</label>
+              <input type="text" value="3-403030">
+            </div>
+            <div class="field">
+              <label>Teléfono móvil</label>
+              <input type="text">
+            </div>
+
+            <div class="field full">
+              <label>Correo <span class="req">*</span></label>
+              <input type="email" value="aurquiza@fassil.com.bo">
+            </div>
+
+            <div class="field full">
+              <label>Dirección</label>
+              <input type="text">
+            </div>
+
+            <div class="field">
+              <label>Fecha egreso</label>
+              <span class="readonly-line">----</span>
+            </div>
+            <div class="field">
+              <label>Estado</label>
+              <span class="readonly-line">Activo</span>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Organización <span class="req">(*)</span></div>
+          <div class="sub-body">
+          <div class="field-grid cols-3">
+            <div class="field"><label>Gerencia</label><span class="readonly-line">Subgerencia De Operaciones</span></div>
+            <div class="field"></div>
+            <div class="field"></div>
+            <div class="field"><label>Jefatura</label><span class="readonly-line">Almacen Santa Cruz</span></div>
+            <div class="field"></div>
+            <div class="field"></div>
+            <div class="field full">
+              <label>Unidad de negocio <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Administración y Finanzas</option>
+                <option>Administración y Servicios</option>
+                <option>Almacén Cochabamba</option>
+                <option>Almacén La Paz</option>
+                <option>Almacen Nacional</option>
+                <option>Almacén Santa Cruz</option>
+                <option>Archivo Cochabamba</option>
+                <option>Archivo Inhouse</option>
+                <option>Archivo La Paz</option>
+                <option>Archivo Nacional</option>
+                <option>Archivo Santa Cruz</option>
+                <option>Calidad</option>
+                <option>Finanzas y Contabilidad</option>
+                <option>Gerencia General</option>
+                <option>Gestión Humana</option>
+                <option>Negocios</option>
+                <option>Proyectos</option>
+                <option>Sistemas y TI</option>
+                <option>Slotting e Inventarios</option>
+                <option>Transporte y Distribución</option>
+                <option>Transporte/Distribución Cochabamba</option>
+                <option>Transporte/Distribución La Paz</option>
+                <option>Transporte/Distribución Santa Cruz</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>División <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Sin definir</option>
+              </select>
+            </div>
+            <div class="field"><label>Regional</label><span class="readonly-line">Santa Cruz</span></div>
+            <div class="field"><label>Sucursal</label><span class="readonly-line">Santa Cruz</span></div>
+            <div class="field"><label>Oficina</label><span class="readonly-line">Torre Berlin</span></div>
+            <div class="field full"><label>Cargo</label><span class="readonly-line">Almacenero I -3M (Sup: Pablo Navarro)</span></div>
+            <div class="field full">
+              <label>Sucursal ministerio <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>Ministerio Cochabamba</option>
+                <option>Ministerio La Paz</option>
+                <option selected>Ministerio Santa Cruz</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>¿Está sindicalizado?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="sindicalizado" value="si"> SÍ</label>
+                <label><input type="radio" name="sindicalizado" value="no" checked> NO</label>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Contrato <span class="req">(*)</span></div>
+          <div class="sub-body">
+          <div class="field-grid cols-3">
+            <div class="field full" style="grid-column: span 2;">
+              <label>Clasificación laboral <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>No especificado</option>
+                <option>Ocupaciones de dirección en la administración pública y empresas</option>
+                <option>Ocupaciones de profesionales científicos e intelectuales</option>
+                <option>Ocupaciones de técnicos y profesionales de apoyo</option>
+                <option selected>Empleados de oficina</option>
+                <option>Trabajadores de los servicios y vendedores del comercio</option>
+                <option>Productores y trabajadores en la agricultura, pecuaria, agropecuaria y pesca</option>
+                <option>Trabajadores de la industria extractiva, construcción, industria manufacturera y otros oficios</option>
+                <option>Operadores de instalaciones y maquinarias</option>
+                <option>Trabajadores no calificados</option>
+                <option>Fuerzas armadas</option>
+              </select>
+            </div>
+            <div class="field"><label>Número de contrato</label><input type="text"></div>
+            <div class="field">
+              <label>Modalidad de contrato <span class="req">*</span></label>
+              <select id="contrato-modalidad" onchange="toggleModalidadContrato(this.value)">
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>A plazo fijo</option>
+                <option>Condicional o eventual</option>
+                <option>Por realización de obra o servicio</option>
+                <option>Por temporada</option>
+                <option selected>Tiempo indefinido</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo de contrato <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Escrito</option>
+                <option>Verbal</option>
+              </select>
+            </div>
+            <div class="field"><label>¿Quién autorizó la contratación?</label><input type="text"></div>
+            <div class="field full">
+              <label>Motivo de contratación <span class="req" id="contrato-motivo-req" style="display:none;">*</span></label>
+              <textarea rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label>Fecha de finalización <span class="req" id="contrato-fechafin-req" style="display:none;">*</span></label>
+              <input type="date" id="contrato-fechafin" disabled>
+            </div>
+            <div class="field"><label>Fecha de ratificación</label><input type="date" value="2020-04-01"></div>
+            <div class="field"><label>Fecha de última renovación de contrato</label><input type="date"></div>
+          </div>
+          </div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Declaración de herederos</div>
+          <div class="sub-body">
+          <div class="link-add" onclick="addHeredero()"><span class="plus">+</span> Agregar heredero</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:22px;"></th>
+                <th>Nombre</th>
+                <th>Fecha de nacimiento</th>
+                <th>Relación</th>
+                <th>Género</th>
+                <th>Número de documento</th>
+                <th>Tipo de documento</th>
+                <th>Participación porcentual</th>
+              </tr>
+            </thead>
+            <tbody id="herederos-body"></tbody>
+          </table>
+          </div>
+        </div>
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Remuneración <span class="req">(*)</span></div>
+          <div class="sub-body">
+          <div class="field-grid">
+            <div class="field"><label>Modo haber básico</label><span class="readonly-line">Monto mensual</span></div>
+            <div class="field"><label>Haber básico</label><span class="readonly-line">3,651.00</span></div>
+            <div class="field">
+              <label>Modo quincena</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-modoquincena" value="porcentaje" checked onchange="toggleModoQuincena('porcentaje')"> Porcentaje</label>
+                <label><input type="radio" name="rem-modoquincena" value="monto" onchange="toggleModoQuincena('monto')"> Monto</label>
+              </div>
+            </div>
+            <div class="field" id="rem-porcentaje-wrap"><label>Porcentaje <span class="req">*</span></label><input type="number" value="10"></div>
+            <div class="field" id="rem-monto-wrap" style="display:none;"><label>Monto <span class="req">*</span></label><input type="number" value="0"></div>
+          </div>
+
+          <div class="field-grid cols-3" style="margin-top:6px;">
+            <div class="field"><label>¿Sujeto a bono de antigüedad?</label><div class="radio-row"><label><input type="radio" name="rem-bonoantig" value="si" checked> SÍ</label><label><input type="radio" name="rem-bonoantig" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aguinaldo/prima desde el primer mes?</label><div class="radio-row"><label><input type="radio" name="rem-aguiprimer" value="si" checked> SÍ</label><label><input type="radio" name="rem-aguiprimer" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aplica aguinaldo de navidad?</label><div class="radio-row"><label><input type="radio" name="rem-aguinav" value="si" checked> SÍ</label><label><input type="radio" name="rem-aguinav" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aplica 2do aguinaldo?</label><div class="radio-row"><label><input type="radio" name="rem-2doagui" value="si" checked> SÍ</label><label><input type="radio" name="rem-2doagui" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aplica retroactivo?</label><div class="radio-row"><label><input type="radio" name="rem-retro" value="si" checked> SÍ</label><label><input type="radio" name="rem-retro" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aplica retroactivo bono de antigüedad?</label><div class="radio-row"><label><input type="radio" name="rem-retrobono" value="si" checked> SÍ</label><label><input type="radio" name="rem-retrobono" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Aplica prima?</label><div class="radio-row"><label><input type="radio" name="rem-prima" value="si" checked> SÍ</label><label><input type="radio" name="rem-prima" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Enviar boleta por correo?</label><div class="radio-row"><label><input type="radio" name="rem-boletacorreo" value="si" checked> SÍ</label><label><input type="radio" name="rem-boletacorreo" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Excluible de planilla?</label><div class="radio-row"><label><input type="radio" name="rem-excluible" value="si"> SÍ</label><label><input type="radio" name="rem-excluible" value="no" checked> NO</label></div></div>
+          </div>
+
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field full">
+              <label>Forma de cálculo de indemnización para quinquenios</label>
+              <div style="display:flex; flex-direction:column; gap:4px; padding-top:4px;">
+                <label><input type="radio" name="rem-formaq" value="q1" checked onchange="toggleQuinqQ(false)"> Desde el último quinquenio</label>
+                <label><input type="radio" name="rem-formaq" value="q2" onchange="toggleQuinqQ(false)"> Desde el último pago a cuenta de indemnización</label>
+                <label><input type="radio" name="rem-formaq" value="q3" onchange="toggleQuinqQ(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
+                <label><input type="radio" name="rem-formaq" value="q4" onchange="toggleQuinqQ(false)"> Desde la fecha de ingreso</label>
+                <label><input type="radio" name="rem-formaq" value="sel" onchange="toggleQuinqQ(true)"> Selección</label>
+              </div>
+            </div>
+            <div class="field" id="rem-quinq-q-wrap" style="display:none;">
+              <label>Último quinquenio consolidado <span class="req">*</span></label>
+              <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
+            </div>
+          </div>
+
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field full">
+              <label>Forma de cálculo de indemnización para retiros</label>
+              <div style="display:flex; flex-direction:column; gap:4px; padding-top:4px;">
+                <label><input type="radio" name="rem-formar" value="r1" checked onchange="toggleQuinqR(false)"> Desde el último quinquenio</label>
+                <label><input type="radio" name="rem-formar" value="r2" onchange="toggleQuinqR(false)"> Desde el último pago a cuenta de indemnización</label>
+                <label><input type="radio" name="rem-formar" value="r3" onchange="toggleQuinqR(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
+                <label><input type="radio" name="rem-formar" value="r4" onchange="toggleQuinqR(false)"> Desde la fecha de ingreso</label>
+                <label><input type="radio" name="rem-formar" value="sel" onchange="toggleQuinqR(true)"> Selección</label>
+              </div>
+            </div>
+            <div class="field" id="rem-quinq-r-wrap" style="display:none;">
+              <label>Último quinquenio consolidado para retiros <span class="req">*</span></label>
+              <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
+            </div>
+          </div>
+
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field"><label>¿Aplica aportes patronales?</label><div class="radio-row"><label><input type="radio" name="rem-aportes" value="si" checked> SÍ</label><label><input type="radio" name="rem-aportes" value="no"> NO</label></div></div>
+            <div class="field"><label>¿Incluir en subsidio de frontera si es que está habilitado para la oficina?</label><div class="radio-row"><label><input type="radio" name="rem-subsidio" value="si"> SÍ</label><label><input type="radio" name="rem-subsidio" value="no" checked> NO</label></div></div>
+          </div>
+          </div>
+        </div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Bonos</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Contabilidad <span class="req">(*)</span></div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> AFP <span class="req">(*)</span></div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Caja de salud</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> RC-IVA <span class="req">(*)</span></div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Pagos <span class="req">(*)</span></div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Discapacidad</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Uniforme</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Vacaciones y permisos</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Vacaciones adicionales</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Asistencias <span class="req">(*)</span></div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+        <div class="subsection"><div class="sub-header"><span class="tri">▸</span> Familiares</div><div class="sub-body"><em class="hint">Pendiente de maquetar.</em></div></div>
+      </div>
+
+      <!-- ===== Otros grupos de nivel superior (corresponden a UX/UI) ===== -->
+      <div class="section">
+        <div class="group-header" style="cursor:default;"><span class="tri">▸</span> CURRICULUM</div>
+      </div>
+      <div class="section">
+        <div class="group-header" style="cursor:default;"><span class="tri">▸</span> INGRESO AL SISTEMA</div>
+      </div>
+      <div class="section">
+        <div class="group-header" style="cursor:default;"><span class="tri">▸</span> DATOS PERSONA… <span class="hint">(confirmar nombre completo)</span></div>
+      </div>
+      <div class="section">
+        <div class="group-header" style="cursor:default;"><span class="tri">▸</span> OTROS</div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ===================== FOOTER DEL SISTEMA ===================== -->
+  <footer class="app-footer">
+    <a href="#">www.salar.com.bo</a> | Desarrollado por <strong>IQUS Servicios Informáticos</strong> (Versión: 2.65.0.4)
+  </footer>
+</div>
+<script src="assets/accordion.js"></script>
+<script>
+  function toggleReingreso(show) {
+    document.getElementById('reingreso-detalle').style.display = show ? 'grid' : 'none';
+  }
+  // Datos personales — condicionales
+  function togglePersonalizar(show) { document.getElementById('nombre-completo-wrap').style.display = show ? 'flex' : 'none'; }
+  function toggleDocSec(show)       { document.getElementById('docsec-wrap').style.display = show ? 'block' : 'none'; }
+  function toggleNacBol(showBol)    { document.getElementById('nacbol-wrap').style.display = showBol ? 'none' : 'block'; }
+
+  // Contrato — la Fecha de finalización y el Motivo son obligatorios si la modalidad NO es indefinida
+  function toggleModalidadContrato(val) {
+    var indefinido = (val === 'Tiempo indefinido' || val === '');
+    document.getElementById('contrato-fechafin').disabled = indefinido;
+    document.getElementById('contrato-fechafin-req').style.display = indefinido ? 'none' : 'inline';
+    document.getElementById('contrato-motivo-req').style.display = indefinido ? 'none' : 'inline';
+  }
+
+  // Remuneración
+  function toggleModoQuincena(modo) {
+    document.getElementById('rem-porcentaje-wrap').style.display = (modo === 'porcentaje') ? 'flex' : 'none';
+    document.getElementById('rem-monto-wrap').style.display      = (modo === 'monto') ? 'flex' : 'none';
+  }
+  function toggleQuinqQ(show) { document.getElementById('rem-quinq-q-wrap').style.display = show ? 'flex' : 'none'; }
+  function toggleQuinqR(show) { document.getElementById('rem-quinq-r-wrap').style.display = show ? 'flex' : 'none'; }
+
+  // Declaración de herederos — filas dinámicas
+  function addHeredero() {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="row-del" onclick="this.parentElement.remove()">✖</td>' +
+      '<td><input type="text"></td>' +
+      '<td><input type="date"></td>' +
+      '<td><input type="text"></td>' +
+      '<td><select><option>Masculino</option><option>Femenino</option></select></td>' +
+      '<td><input type="text"></td>' +
+      '<td><select><option>Carnet de identidad</option><option>Pasaporte</option><option>Carnet de extranjero</option><option>Certificado de nacimiento</option></select></td>' +
+      '<td><input type="number"></td>';
+    document.getElementById('herederos-body').appendChild(tr);
+  }
+</script>
+</body>
+</html>

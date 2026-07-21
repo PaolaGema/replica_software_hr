@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reingreso de colaborador — Maqueta</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="frame">
+  <div class="main standalone">
+    <div class="note-source">Sección: <strong>Reingreso de colaborador</strong> · Grupo: (pre-formulario) · Fuente: <code>00-reingreso-colaborador/captura 1,2,3</code></div>
+
+    <div class="section">
+      <div class="group-header"><span class="tri">▾</span> REINGRESO DE COLABORADOR</div>
+
+      <div class="subsection active">
+        <div class="sub-body" style="display:block;">
+
+          <!-- Pregunta principal (siempre visible) -->
+          <div class="field full" style="margin-bottom:14px;">
+            <div class="radio-row" style="justify-content:space-between;">
+              <label style="flex:1;">¿Se trata de un colaborador actualmente retirado pero previamente registrado en esta u otra empresa del grupo?</label>
+              <span class="radio-row">
+                <label><input type="radio" name="reingreso" value="si" onchange="toggleReingreso(true)"> SÍ</label>
+                <label><input type="radio" name="reingreso" value="no" checked onchange="toggleReingreso(false)"> NO</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Campos condicionales: sólo cuando responde SÍ -->
+          <div id="reingreso-detalle" class="field-grid" style="display:none;">
+            <div class="field">
+              <label>Empresa <span class="req">(*)</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>DEMO</option>
+                <option>OTRO DEMO</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Colaborador <span class="req">(*)</span></label>
+              <input type="text" list="colab-reingreso" placeholder="Escriba el nombre…" autocomplete="off">
+              <datalist id="colab-reingreso">
+                <option value="Serrano Alvarado Javier Andre (retiro 14/01/2020)"></option>
+              </datalist>
+              <span class="hint">Autocompletado: muestra colaboradores retirados con su fecha de retiro.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/accordion.js"></script>
+<script>
+  function toggleReingreso(show) {
+    document.getElementById('reingreso-detalle').style.display = show ? 'grid' : 'none';
+  }
+</script>
+</body>
+</html>

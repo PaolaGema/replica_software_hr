@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrato — Maqueta</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="frame">
+  <div class="main standalone">
+    <div class="note-source">Sección: <strong>Contrato</strong> · Grupo: INFORMACIÓN LABORAL · Fuente: <code>02-informacion-laboral/03-contrato/Captura 1-5</code></div>
+
+    <div class="section">
+      <div class="group-header"><span class="tri">▾</span> INFORMACIÓN LABORAL <span class="req">(*)</span></div>
+
+      <div class="subsection active">
+        <div class="sub-header"><span class="tri">▾</span> Contrato <span class="req">(*)</span></div>
+        <div class="sub-body">
+
+          <div class="field-grid cols-3">
+            <div class="field full" style="grid-column: span 2;">
+              <label>Clasificación laboral <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>No especificado</option>
+                <option>Ocupaciones de dirección en la administración pública y empresas</option>
+                <option>Ocupaciones de profesionales científicos e intelectuales</option>
+                <option>Ocupaciones de técnicos y profesionales de apoyo</option>
+                <option selected>Empleados de oficina</option>
+                <option>Trabajadores de los servicios y vendedores del comercio</option>
+                <option>Productores y trabajadores en la agricultura, pecuaria, agropecuaria y pesca</option>
+                <option>Trabajadores de la industria extractiva, construcción, industria manufacturera y otros oficios</option>
+                <option>Operadores de instalaciones y maquinarias</option>
+                <option>Trabajadores no calificados</option>
+                <option>Fuerzas armadas</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Número de contrato</label>
+              <input type="text">
+            </div>
+
+            <div class="field">
+              <label>Modalidad de contrato <span class="req">*</span></label>
+              <select id="contrato-modalidad" onchange="toggleModalidadContrato(this.value)">
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>A plazo fijo</option>
+                <option>Condicional o eventual</option>
+                <option>Por realización de obra o servicio</option>
+                <option>Por temporada</option>
+                <option selected>Tiempo indefinido</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo de contrato <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Escrito</option>
+                <option>Verbal</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>¿Quién autorizó la contratación?</label>
+              <input type="text">
+            </div>
+
+            <!-- Motivo de contratación: obligatorio (*) cuando la modalidad NO es "Tiempo indefinido" -->
+            <div class="field full">
+              <label>Motivo de contratación <span class="req" id="contrato-motivo-req" style="display:none;">*</span></label>
+              <textarea rows="2"></textarea>
+            </div>
+
+            <!-- Fecha de finalización: deshabilitada en "Tiempo indefinido"; habilitada y obligatoria en las demás -->
+            <div class="field">
+              <label>Fecha de finalización <span class="req" id="contrato-fechafin-req" style="display:none;">*</span></label>
+              <input type="date" id="contrato-fechafin" disabled>
+            </div>
+            <div class="field">
+              <label>Fecha de ratificación</label>
+              <input type="date" value="2020-04-01">
+            </div>
+            <div class="field">
+              <label>Fecha de última renovación de contrato</label>
+              <input type="date">
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../assets/accordion.js"></script>
+<script>
+  function toggleModalidadContrato(val) {
+    var indefinido = (val === 'Tiempo indefinido' || val === '');
+    document.getElementById('contrato-fechafin').disabled = indefinido;
+    document.getElementById('contrato-fechafin-req').style.display = indefinido ? 'none' : 'inline';
+    document.getElementById('contrato-motivo-req').style.display = indefinido ? 'none' : 'inline';
+  }
+</script>
+</body>
+</html>

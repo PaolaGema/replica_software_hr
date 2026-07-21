@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remuneración — Maqueta</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="frame">
+  <div class="main standalone">
+    <div class="note-source">Sección: <strong>Remuneración</strong> · Grupo: INFORMACIÓN LABORAL · Fuente: <code>02-informacion-laboral/05-remuneracion/captura 1-5</code></div>
+
+    <div class="section">
+      <div class="group-header"><span class="tri">▾</span> INFORMACIÓN LABORAL <span class="req">(*)</span></div>
+
+      <div class="subsection active">
+        <div class="sub-header"><span class="tri">▾</span> Remuneración <span class="req">(*)</span></div>
+        <div class="sub-body">
+
+          <div class="field-grid">
+            <div class="field">
+              <label>Modo haber básico</label>
+              <span class="readonly-line">Monto mensual</span>
+            </div>
+            <div class="field">
+              <label>Haber básico</label>
+              <span class="readonly-line">3,651.00</span>
+            </div>
+
+            <!-- Modo quincena: Porcentaje → campo Porcentaje(*) · Monto → campo Monto(*) -->
+            <div class="field">
+              <label>Modo quincena</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-modoquincena" value="porcentaje" checked onchange="toggleModoQuincena('porcentaje')"> Porcentaje</label>
+                <label><input type="radio" name="rem-modoquincena" value="monto" onchange="toggleModoQuincena('monto')"> Monto</label>
+              </div>
+            </div>
+            <div class="field" id="rem-porcentaje-wrap">
+              <label>Porcentaje <span class="req">*</span></label>
+              <input type="number" value="10">
+            </div>
+            <div class="field" id="rem-monto-wrap" style="display:none;">
+              <label>Monto <span class="req">*</span></label>
+              <input type="number" value="0">
+            </div>
+          </div>
+
+          <!-- Preguntas SI/NO (3 columnas) -->
+          <div class="field-grid cols-3" style="margin-top:6px;">
+            <div class="field">
+              <label>¿Sujeto a bono de antigüedad?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-bonoantig" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-bonoantig" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Aguinaldo/prima desde el primer mes?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-aguiprimer" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-aguiprimer" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Aplica aguinaldo de navidad?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-aguinav" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-aguinav" value="no"> NO</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>¿Aplica 2do aguinaldo?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-2doagui" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-2doagui" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Aplica retroactivo?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-retro" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-retro" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Aplica retroactivo bono de antigüedad?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-retrobono" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-retrobono" value="no"> NO</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>¿Aplica prima?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-prima" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-prima" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Enviar boleta por correo?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-boletacorreo" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-boletacorreo" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Excluible de planilla?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-excluible" value="si"> SÍ</label>
+                <label><input type="radio" name="rem-excluible" value="no" checked> NO</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Forma de cálculo de indemnización para quinquenios -->
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field full">
+              <label>Forma de cálculo de indemnización para quinquenios</label>
+              <div style="display:flex; flex-direction:column; gap:4px; padding-top:4px;">
+                <label><input type="radio" name="rem-formaq" value="q1" checked onchange="toggleQuinqQ(false)"> Desde el último quinquenio</label>
+                <label><input type="radio" name="rem-formaq" value="q2" onchange="toggleQuinqQ(false)"> Desde el último pago a cuenta de indemnización</label>
+                <label><input type="radio" name="rem-formaq" value="q3" onchange="toggleQuinqQ(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
+                <label><input type="radio" name="rem-formaq" value="q4" onchange="toggleQuinqQ(false)"> Desde la fecha de ingreso</label>
+                <label><input type="radio" name="rem-formaq" value="sel" onchange="toggleQuinqQ(true)"> Selección</label>
+              </div>
+            </div>
+            <div class="field" id="rem-quinq-q-wrap" style="display:none;">
+              <label>Último quinquenio consolidado <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>Fecha de ingreso</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Forma de cálculo de indemnización para retiros -->
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field full">
+              <label>Forma de cálculo de indemnización para retiros</label>
+              <div style="display:flex; flex-direction:column; gap:4px; padding-top:4px;">
+                <label><input type="radio" name="rem-formar" value="r1" checked onchange="toggleQuinqR(false)"> Desde el último quinquenio</label>
+                <label><input type="radio" name="rem-formar" value="r2" onchange="toggleQuinqR(false)"> Desde el último pago a cuenta de indemnización</label>
+                <label><input type="radio" name="rem-formar" value="r3" onchange="toggleQuinqR(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
+                <label><input type="radio" name="rem-formar" value="r4" onchange="toggleQuinqR(false)"> Desde la fecha de ingreso</label>
+                <label><input type="radio" name="rem-formar" value="sel" onchange="toggleQuinqR(true)"> Selección</label>
+              </div>
+            </div>
+            <div class="field" id="rem-quinq-r-wrap" style="display:none;">
+              <label>Último quinquenio consolidado para retiros <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>Fecha de ingreso</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-grid" style="margin-top:6px;">
+            <div class="field">
+              <label>¿Aplica aportes patronales?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-aportes" value="si" checked> SÍ</label>
+                <label><input type="radio" name="rem-aportes" value="no"> NO</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Incluir en subsidio de frontera si es que está habilitado para la oficina?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="rem-subsidio" value="si"> SÍ</label>
+                <label><input type="radio" name="rem-subsidio" value="no" checked> NO</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/accordion.js"></script>
+<script>
+  function toggleModoQuincena(modo) {
+    document.getElementById('rem-porcentaje-wrap').style.display = (modo === 'porcentaje') ? 'flex' : 'none';
+    document.getElementById('rem-monto-wrap').style.display      = (modo === 'monto') ? 'flex' : 'none';
+  }
+  function toggleQuinqQ(show) { document.getElementById('rem-quinq-q-wrap').style.display = show ? 'flex' : 'none'; }
+  function toggleQuinqR(show) { document.getElementById('rem-quinq-r-wrap').style.display = show ? 'flex' : 'none'; }
+</script>
+</body>
+</html>

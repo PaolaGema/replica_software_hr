@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datos personales — Maqueta</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="frame">
+  <div class="main standalone">
+    <div class="note-source">Sección: <strong>Datos personales</strong> · Grupo: INFORMACIÓN PERSONAL · Fuente: <code>01-informacion-personal/01-datos-personales/captura 1-14</code></div>
+
+    <div class="section">
+      <div class="group-header"><span class="tri">▾</span> INFORMACIÓN PERSONAL <span class="req">(*)</span></div>
+
+      <div class="subsection active">
+        <div class="sub-header"><span class="tri">▾</span> Datos personales <span class="req">(*)</span></div>
+        <div class="sub-body">
+
+          <!-- ===== Nombre + Fotografía ===== -->
+          <div class="row-with-photo">
+            <div class="field-grid">
+              <div class="field">
+                <label>1er Nombre <span class="req">*</span></label>
+                <input type="text" value="Javier">
+              </div>
+              <div class="field">
+                <label>2do Nombre</label>
+                <input type="text" value="Andre">
+              </div>
+              <div class="field">
+                <label>3er Nombre</label>
+                <input type="text">
+              </div>
+              <div class="field">
+                <label>Ap. paterno</label>
+                <input type="text" value="Serrano">
+              </div>
+              <div class="field">
+                <label>Ap. materno</label>
+                <input type="text" value="Alvarado">
+              </div>
+              <div class="field">
+                <label>Ap. casada</label>
+                <input type="text">
+              </div>
+
+              <!-- Condicional: Personalizar nombre completo -->
+              <div class="field">
+                <label>¿Personalizar nombre completo?</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="personalizar" value="si" onchange="togglePersonalizar(true)"> SÍ</label>
+                  <label><input type="radio" name="personalizar" value="no" checked onchange="togglePersonalizar(false)"> NO</label>
+                </div>
+              </div>
+              <div class="field" id="nombre-completo-wrap" style="display:none;">
+                <label>Nombre completo <span class="req">*</span></label>
+                <input type="text" placeholder="Se habilita al personalizar">
+              </div>
+            </div>
+
+            <!-- Fotografía -->
+            <div class="photo-box">
+              <label>Fotografía:</label>
+              <div class="photo-actions">
+                <button class="btn btn-sm" type="button">Cargar</button>
+                <button class="btn btn-sm" type="button">Quitar</button>
+              </div>
+              <div class="photo-preview">sin<br>foto</div>
+            </div>
+          </div>
+
+          <!-- ===== Documento de identidad (primario) ===== -->
+          <div class="field-grid" style="margin-top:12px;">
+            <div class="field">
+              <label>Doc. Ident. <span class="req">*</span></label>
+              <input type="text" value="7823795">
+            </div>
+            <div class="field">
+              <label>Extensión <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>Beni</option>
+                <option>Cochabamba</option>
+                <option>Chuquisaca</option>
+                <option>Extranjero</option>
+                <option>La Paz</option>
+                <option>No aplica</option>
+                <option>Oruro</option>
+                <option>Pando</option>
+                <option>Potosí</option>
+                <option selected>Santa Cruz</option>
+                <option>Tarija</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo doc. <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Carnet de identidad</option>
+                <option>Pasaporte</option>
+                <option>RUN</option>
+                <option>Carnet de extranjero</option>
+                <option>Otro</option>
+                <option>Certificado de nacimiento</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Adicional SEGIP</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Venc. documento</label>
+              <input type="date" value="2024-07-18">
+            </div>
+            <!-- Condicional: Documento secundario -->
+            <div class="field">
+              <label>¿Documento secundario?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="docsec" value="si" onchange="toggleDocSec(true)"> SÍ</label>
+                <label><input type="radio" name="docsec" value="no" checked onchange="toggleDocSec(false)"> NO</label>
+              </div>
+            </div>
+            <!-- Reveal: al marcar SÍ aparece un segundo documento (Doc. Ident. / Extensión / Tipo doc. / Adicional SEGIP) -->
+            <div class="field full" id="docsec-wrap" style="display:none;">
+              <div class="field-subtitle">Documento secundario</div>
+              <div class="field-grid cols-3" style="margin-top:8px;">
+                <div class="field">
+                  <label>Doc. Ident. <span class="req">*</span></label>
+                  <input type="text">
+                </div>
+                <div class="field">
+                  <label>Extensión <span class="req">*</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
+                    <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
+                    <option>Oruro</option><option>Pando</option><option>Potosí</option>
+                    <option>Santa Cruz</option><option>Tarija</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Tipo doc. <span class="req">*</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Carnet de identidad</option><option>Pasaporte</option><option>RUN</option>
+                    <option>Carnet de extranjero</option><option>Otro</option><option>Certificado de nacimiento</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Adicional SEGIP</label>
+                  <input type="text">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== Nacimiento / filiación ===== -->
+          <div class="field-grid cols-3" style="margin-top:2px;">
+            <div class="field">
+              <label>Fec. nacimiento <span class="req">*</span></label>
+              <input type="date" value="1994-05-22">
+            </div>
+            <div class="field">
+              <label>Nombre del padre</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Nombre de la madre</label>
+              <input type="text">
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label>País nacionalidad <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option>ARGENTINA</option>
+                <option selected>BOLIVIANA</option>
+                <option>BRASILERA</option>
+                <option>CHILENA</option>
+                <option>COLOMBIANA</option>
+                <option>ECUATORIANA</option>
+                <option>ESPAÑA</option>
+                <option>ESTADOUNIDENSE</option>
+                <option>ITALIANA</option>
+                <option>MEXICANA</option>
+                <option>NICARAGÜENSE</option>
+                <option>PARAGUAYA</option>
+                <option>PERUANA</option>
+                <option>URUGUAYA</option>
+                <option>VENEZOLANA</option>
+                <!-- la lista puede continuar (otras nacionalidades) -->
+              </select>
+            </div>
+            <!-- Condicional: Nacionalidad boliviana (SÍ/NO) — nota: es independiente del país -->
+            <div class="field">
+              <label>¿Nacionalidad boliviana?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="nacbol" value="si" checked onchange="toggleNacBol(true)"> SÍ</label>
+                <label><input type="radio" name="nacbol" value="no" onchange="toggleNacBol(false)"> NO</label>
+              </div>
+            </div>
+            <div class="field full" id="nacbol-wrap" style="display:none;">
+              <!-- PENDIENTE: capturar el escenario "¿Nacionalidad boliviana? = NO" (aún no visto; puede no agregar campos) -->
+              <em class="hint">Escenario "NO" pendiente de captura.</em>
+            </div>
+
+            <div class="field full">
+              <label>Lugar de nacimiento</label>
+              <input type="text" value="Santa Cruz">
+            </div>
+
+            <div class="field">
+              <label>Sexo</label>
+              <div class="radio-row">
+                <label><input type="radio" name="sexo" value="m" checked> M</label>
+                <label><input type="radio" name="sexo" value="f"> F</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Estado civil <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <option selected>Soltero(a)</option>
+                <option>Casado(a)</option>
+                <option>Divorciado(a)</option>
+                <option>Viudo(a)</option>
+                <option>Separado(a)</option>
+                <option>Unión libre</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Lic. de conducir</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Venc. licencia</label>
+              <input type="date">
+            </div>
+
+            <div class="field">
+              <label>Teléfono fijo</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Teléfono móvil</label>
+              <input type="text" value="76316567">
+            </div>
+
+            <div class="field full">
+              <label>Dirección <span class="req">*</span></label>
+              <input type="text" value="Av. Mutualista Calle Cuquisas #2020">
+            </div>
+
+            <div class="field">
+              <label>Ciudad o localidad <span class="req">*</span></label>
+              <select>
+                <option value="">&lt;SELECCIONE&gt;</option>
+                <!-- Lista real = todos los municipios de Bolivia (cientos). Muestra representativa: -->
+                <option selected>Santa Cruz de la Sierra</option>
+                <option>Santa Rosa</option>
+                <option>La Paz</option>
+                <option>Cochabamba</option>
+                <option>Sucre</option>
+                <option>Oruro</option>
+                <option>Potosí</option>
+                <option>Tarija</option>
+                <option>Trinidad</option>
+                <option>Cobija</option>
+                <option>El Alto</option>
+                <option>Montero</option>
+                <!-- … (lista completa de municipios pendiente si se requiere exhaustiva) -->
+              </select>
+            </div>
+            <div class="field">
+              <label>Zona</label>
+              <input type="text">
+            </div>
+
+            <div class="field full">
+              <label>Ubicación GPS domicilio</label>
+              <div style="display:flex; align-items:center; gap:16px;">
+                <span class="readonly-line">Latitud: ----, &nbsp; Longitud: ----</span>
+                <button class="btn btn-sm" type="button" title="Abre un modal de Google Maps (Mapa/Satélite)">Configurar</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Profesión u oficio</label>
+              <input type="text">
+            </div>
+            <div class="field">
+              <label>Matrícula profesional</label>
+              <input type="text">
+            </div>
+
+            <div class="field">
+              <label>¿Vivienda propia?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="vivienda" value="si"> SÍ</label>
+                <label><input type="radio" name="vivienda" value="no"> NO</label>
+                <label><input type="radio" name="vivienda" value="desc" checked> Desconocido</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>¿Vehículo propio?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="vehiculo" value="si"> SÍ</label>
+                <label><input type="radio" name="vehiculo" value="no"> NO</label>
+                <label><input type="radio" name="vehiculo" value="desc" checked> Desconocido</label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label>Correo</label>
+              <input type="email" value="javserralv.222@gmail.com">
+            </div>
+
+            <div class="field">
+              <label>Tipo de sangre</label>
+              <select>
+                <option value="" selected>&lt;SELECCIONE&gt;</option>
+                <option>A</option>
+                <option>B</option>
+                <option>AB</option>
+                <option>O</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Factor</label>
+              <select>
+                <option value="" selected>&lt;SELECCIONE&gt;</option>
+                <option>Positivo</option>
+                <option>Negativo</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/accordion.js"></script>
+<script>
+  function togglePersonalizar(show) { document.getElementById('nombre-completo-wrap').style.display = show ? 'flex' : 'none'; }
+  function toggleDocSec(show)       { document.getElementById('docsec-wrap').style.display = show ? 'block' : 'none'; }
+  function toggleNacBol(showBol)    { document.getElementById('nacbol-wrap').style.display = showBol ? 'none' : 'block'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declaración de herederos — Maqueta</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<div class="frame">
+  <div class="main standalone">
+    <div class="note-source">Sección: <strong>Declaración de herederos</strong> · Grupo: INFORMACIÓN LABORAL · Fuente: <code>02-informacion-laboral/04-declaracion-de-herederos/captura 1-2</code></div>
+
+    <div class="section">
+      <div class="group-header"><span class="tri">▾</span> INFORMACIÓN LABORAL <span class="req">(*)</span></div>
+
+      <div class="subsection active">
+        <div class="sub-header"><span class="tri">▾</span> Declaración de herederos</div>
+        <div class="sub-body">
+
+          <div class="link-add" onclick="addHeredero()"><span class="plus">+</span> Agregar heredero</div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:22px;"></th>
+                <th>Nombre</th>
+                <th>Fecha de nacimiento</th>
+                <th>Relación</th>
+                <th>Género</th>
+                <th>Número de documento</th>
+                <th>Tipo de documento</th>
+                <th>Participación porcentual</th>
+              </tr>
+            </thead>
+            <tbody id="herederos-body">
+              <!-- filas agregadas dinámicamente -->
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/accordion.js"></script>
+<script>
+  function addHeredero() {
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="row-del" onclick="this.parentElement.remove()">✖</td>' +
+      '<td><input type="text"></td>' +
+      '<td><input type="date"></td>' +
+      '<td><input type="text"></td>' +
+      '<td><select><option>Masculino</option><option>Femenino</option></select></td>' +
+      '<td><input type="text"></td>' +
+      '<td><select><option>Carnet de identidad</option><option>Pasaporte</option><option>Carnet de extranjero</option><option>Certificado de nacimiento</option></select></td>' +
+      '<td><input type="number"></td>';
+    document.getElementById('herederos-body').appendChild(tr);
+  }
+</script>
+</body>
+</html>
