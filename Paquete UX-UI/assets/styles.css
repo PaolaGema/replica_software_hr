@@ -1,0 +1,148 @@
+/* =====================================================================
+   Estilos compartidos — Maquetado del formulario de alta (estilo "el Salar")
+   Todas las secciones (mías y las de UX/UI) deben enlazar este archivo
+   para que el ensamble final se vea uniforme.
+   ===================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #333;
+  background: #16305c;              /* marco azul marino exterior */
+}
+
+/* ---------- Encabezado del sistema ---------- */
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #fff; padding: 12px 16px; border: 1px solid #cfd8e3; border-bottom: none;
+}
+.brand { font-size: 30px; font-weight: bold; color: #2b5a8c; letter-spacing: .5px; }
+.brand span { display: block; font-size: 12px; font-weight: normal; color: #8a97a5; letter-spacing: 2px; }
+.user-panel { border: 1px solid #b8c6d8; border-radius: 4px; padding: 8px 12px; min-width: 240px; font-size: 12px; color: #33475b; }
+.user-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
+.user-meta { color: #55697d; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.breadcrumb { background: #fff; text-align: right; padding: 6px 18px 0; color: #7a8aa0; font-size: 22px; font-weight: 300; }
+.breadcrumb span { color: #9bb0c8; }
+.screen-title {
+  background: #d9ead3; color: #274e13; font-weight: bold; font-size: 15px;
+  padding: 10px 16px; border: 1px solid #b7d3a8; display: flex; align-items: center; gap: 14px;
+}
+.btn-help {
+  background: linear-gradient(#7cb267, #5e9450); color: #fff; border: 1px solid #4d7d40;
+  border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+}
+
+/* ---------- Layout general ---------- */
+.frame   { padding: 10px; }
+.layout  { display: flex; gap: 0; background: #fff; min-height: 100vh; }
+.sidebar { width: 250px; flex: 0 0 250px; background: #fff; border-right: 1px solid #cfd8e3; }
+.main    { flex: 1 1 auto; background: #fff; padding: 0 0 30px; }
+
+/* ---------- Barra lateral ---------- */
+.nav-title {
+  background: #4f7cb2; color: #fff; font-weight: bold;
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+}
+.nav-item {
+  background: #fff; color: #234a6d;
+  padding: 10px 14px; border-bottom: 1px solid #dfe6ee;
+  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.nav-item:hover { background: #f2f6fb; }
+.nav-group {
+  margin: 6px 8px; padding: 9px 12px;
+  background: linear-gradient(#e7f0fa, #d5e5f6);
+  border: 1px solid #b8d0ea; border-radius: 4px;
+  color: #234a6d; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.nav-caret { color: #234a6d; font-size: 11px; }
+
+/* ---------- Encabezado / intro del panel principal ---------- */
+.main-intro { padding: 12px 16px 6px; color: #2b5a8c; }
+
+/* ---------- Barra de botones ---------- */
+.toolbar {
+  background: #e2e2e2; border: 1px solid #cfcfcf;
+  margin: 6px 12px 12px; padding: 10px; border-radius: 4px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.btn {
+  background: linear-gradient(#5a8bc0, #3f6fa5); color: #fff;
+  border: 1px solid #2f5580; border-radius: 4px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { background: linear-gradient(#6699cc, #477ab3); }
+.btn .caret { font-size: 10px; opacity: .9; }
+
+/* ---------- Bloque de sección (contenedor por sección) ---------- */
+.section { margin: 0 12px; }
+
+/* Encabezado de GRUPO (INFORMACIÓN PERSONAL / LABORAL) */
+.group-header {
+  background: #cfe3f5; color: #1c3d63; font-weight: bold;
+  padding: 9px 12px; border: 1px solid #b4d0ea; border-radius: 3px;
+  margin: 6px 0 4px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.group-header .tri { color: #1c3d63; font-size: 11px; }
+
+/* Fila de SUBSECCIÓN (acordeón) */
+.subsection { margin: 5px 0; border: 1px solid #d5d5d5; border-radius: 4px; background: #fff; }
+.subsection.active > .sub-header { background: #eef2f6; }
+.sub-header {
+  padding: 9px 12px; display: flex; align-items: center; gap: 8px;
+  cursor: pointer; color: #333;
+}
+.sub-header:hover { background: #f6f8fa; }
+.sub-header .tri { color: #7a1f1f; font-size: 11px; width: 12px; }   /* triángulo granate como el Salar */
+.sub-body { display: none; padding: 14px 16px 18px; border-top: 1px solid #e3e3e3; background: #fdfdfd; }
+.subsection.active > .sub-body { display: block; }
+
+/* Marcador de obligatorio */
+.req { color: #c8102e; font-weight: bold; }
+
+/* ---------- Formulario: grilla de campos ---------- */
+.field-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+}
+.field-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.full { grid-column: 1 / -1; }
+.field label { color: #33475b; font-size: 12px; }
+.field input[type="text"],
+.field input[type="date"],
+.field input[type="number"],
+.field input[type="email"],
+.field select,
+.field textarea {
+  padding: 7px 9px; border: 1px solid #b9c4d0; border-radius: 3px;
+  font-size: 13px; font-family: inherit; background: #fff; color: #333; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: #4f7cb2; box-shadow: 0 0 0 2px rgba(79,124,178,.15);
+}
+.field .radio-row { display: flex; gap: 18px; align-items: center; padding-top: 4px; }
+.field .hint { color: #8a97a5; font-size: 11px; }
+
+/* Subtítulo dentro de una sección (agrupador de campos) */
+.field-subtitle {
+  grid-column: 1 / -1; color: #2b5a8c; font-weight: bold;
+  border-bottom: 1px solid #e0e7ef; padding-bottom: 4px; margin-top: 6px;
+}
+
+/* ---------- Utilidades para revisar una sección sola ---------- */
+.standalone { max-width: 1200px; margin: 0 auto; }
+.note-source {
+  margin: 0 12px 12px; padding: 8px 12px; background: #fff8e1;
+  border: 1px solid #f0e0a0; border-radius: 4px; color: #7a5c00; font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .field-grid, .field-grid.cols-3 { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
