@@ -150,21 +150,21 @@
     /* ---------- Tablas ---------- */
     .tabla-rep { width: 100%; border-collapse: collapse; }
     .tabla-rep th {
-      background: #eef2f6; color: #1c3d63; font-size: 11px; font-weight: bold;
-      text-align: left; padding: 5px 6px; border-bottom: 1px solid #d5d5d5;
+      background: #eef2f6; color: #1c3d63; font-size: 10px; font-weight: bold;
+      text-align: left; padding: 4px 5px; border-bottom: 1px solid #d5d5d5;
     }
-    .tabla-rep td { padding: 3px 6px; vertical-align: middle; }
+    .tabla-rep td { padding: 2px 5px; vertical-align: middle; }
     .tabla-rep .col-x { width: 24px; text-align: center; }
     .tabla-rep .quitar { color: #c8102e; font-weight: bold; cursor: pointer; }
     .tabla-rep td.solo-lectura { color: #777; }
     .btn-add {
       display: inline-flex; align-items: center; gap: 6px; margin: 0 0 7px;
       background: none; border: none; padding: 0; cursor: pointer;
-      color: #1c3d63; font-size: 12px; font-family: inherit;
+      color: #1c3d63; font-size: 11px; font-family: inherit;
     }
     .btn-add .plus {
-      background: #2f7fc1; color: #fff; width: 15px; height: 15px; border-radius: 2px;
-      display: inline-flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1;
+      background: #2f7fc1; color: #fff; width: 14px; height: 14px; border-radius: 2px;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1;
     }
     .tabla-wrap { overflow-x: auto; }
     .tabla-dias th, .tabla-dias td { text-align: center; }
@@ -175,8 +175,8 @@
       border-radius: 2px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: #333;
     }
     .foto-caja {
-      width: 96px; height: 96px; border: 1px solid gray; background: #f4f4f4;
-      display: flex; align-items: center; justify-content: center; color: #999; font-size: 11px;
+      width: 110px; height: 110px; border: 1px solid gray; background: #f4f4f4;
+      display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;
     }
 
     @media (max-width: 860px) {
@@ -297,44 +297,54 @@
         <div class="subsection active">
           <div class="sub-header"><span class="tri">▾</span> Datos personales <span class="req">(*)</span></div>
           <div class="sub-body">
-            <div class="field-grid">
-              <div class="field"><label>1er Nombre: <span class="req">(*)</span></label><input type="text" maxlength="30"></div>
-              <div class="field"><label>2do Nombre:</label><input type="text" maxlength="30"></div>
-              <div class="field"><label>3er Nombre:</label><input type="text" maxlength="30"></div>
-              <div class="field"><label>Ap. paterno:</label><input type="text" maxlength="30"></div>
-              <div class="field"><label>Ap. materno:</label><input type="text" maxlength="30"></div>
-              <div class="field"><label>Ap. casada:</label><input type="text" maxlength="30"></div>
-
-              <div class="field">
-                <label>¿Personalizar nombre completo?</label>
-                <span class="radio-row">
-                  <label><input type="radio" name="nomcompleto" value="S"> SI</label>
-                  <label><input type="radio" name="nomcompleto" value="N" checked> NO</label>
-                </span>
+            <!-- Las 5 primeras filas comparten la columna de Fotografía,
+                 que en el Salar es un <td rowspan="5"> a la derecha. -->
+            <div class="fila-con-foto">
+              <div class="field-grid">
+                <div class="field"><label>1er Nombre: <span class="req">(*)</span></label><input type="text" maxlength="30"></div>
+                <div class="field"><label>2do Nombre:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>3er Nombre:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. paterno:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. materno:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. casada:</label><input type="text" maxlength="30"></div>
+                <div class="field">
+                  <label>¿Personalizar nombre completo?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="nomcompleto" value="S" onchange="toggleNombreCompleto(true)"> SI</label>
+                    <label><input type="radio" name="nomcompleto" value="N" checked onchange="toggleNombreCompleto(false)"> NO</label>
+                  </span>
+                </div>
+                <!-- Etiqueta e input llevan la clase "nombrecompleto": el Salar los
+                     oculta al responder NO, porque arma el nombre con nombres y apellidos.
+                     El hueco de la celda se mantiene, igual que el <td> del original. -->
+                <div class="field">
+                  <label class="nombrecompleto" style="display:none;">Nombre completo: <span class="req">(*)</span></label>
+                  <input type="text" class="nombrecompleto" maxlength="180" style="display:none;">
+                </div>
+                <div class="field"><label>Doc. Ident.: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+                <div class="field">
+                  <label>Extensión: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
+                    <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
+                    <option>Oruro</option><option>Pando</option><option>Potosí</option>
+                    <option>Santa Cruz</option><option>Tarija</option>
+                  </select>
+                </div>
               </div>
-              <div class="field"><label>Nombre completo: <span class="req">(*)</span></label><input type="text" maxlength="180"></div>
 
-              <div class="field start">
+              <div class="col-foto">
                 <label>Fotografía:</label>
-                <span style="flex:1;">
+                <div>
                   <button type="button" class="btn-mini">Cargar</button>
                   <button type="button" class="btn-mini">Quitar</button>
                   <div class="foto-caja" style="margin-top:5px;">sin fotografía</div>
-                </span>
+                </div>
               </div>
-              <div class="field"></div>
+            </div>
 
-              <div class="field"><label>Doc. Ident.: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
-              <div class="field">
-                <label>Extensión: <span class="req">(*)</span></label>
-                <select>
-                  <option value="">&lt;SELECCIONE&gt;</option>
-                  <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
-                  <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
-                  <option>Oruro</option><option>Pando</option><option>Potosí</option>
-                  <option>Santa Cruz</option><option>Tarija</option>
-                </select>
-              </div>
+            <div class="field-grid" style="margin-top:4px;">
               <div class="field">
                 <label>Tipo doc.: <span class="req">(*)</span></label>
                 <select>
@@ -1951,6 +1961,13 @@
   function toggleReingreso(show) {
     document.getElementById('colaborador-reingreso').disabled = !show;
     document.getElementById('fila-docs-digitales').style.display = show ? 'flex' : 'none';
+  }
+
+  // Datos personales: "Nombre completo" sólo se muestra si se personaliza.
+  function toggleNombreCompleto(show) {
+    document.querySelectorAll('.nombrecompleto').forEach(function (el) {
+      el.style.display = show ? '' : 'none';
+    });
   }
 
   // Datos personales: muestra los campos del documento secundario.
