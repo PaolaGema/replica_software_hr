@@ -179,6 +179,60 @@
       display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;
     }
 
+    /* ---------- Modal (réplica del diálogo jQuery UI del Salar) ---------- */
+    .modal-fondo {
+      display: none; position: fixed; inset: 0;
+      background: #aaa; opacity: .3; z-index: 100;
+    }
+    .modal-fondo.abierto { display: block; }
+
+    .modal {
+      display: none; position: fixed; z-index: 101;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 400px; max-width: calc(100vw - 16px);
+      background: #fff; border: 1px solid #ddd; border-radius: 3px;
+      box-shadow: 0 2px 9px rgba(0,0,0,.28);
+    }
+    .modal.abierto { display: block; }
+    .modal-titulo {
+      background: linear-gradient(#f6f6f6, #ededed);
+      border-bottom: 1px solid #ddd; border-radius: 3px 3px 0 0;
+      padding: 5px 8px; display: flex; align-items: center; justify-content: space-between;
+      color: #333; font-weight: bold; font-size: 12px;
+    }
+    .modal-cerrar {
+      background: none; border: none; padding: 0 2px; cursor: pointer;
+      color: #888; font-size: 13px; line-height: 1; font-family: inherit;
+    }
+    .modal-cerrar:hover { color: #333; }
+    .modal-cuerpo { padding: 9px 10px; }
+    .modal-error { display: none; color: #c8102e; margin-top: 5px; }
+    .modal-error.visible { display: block; }
+    .modal-pie {
+      border-top: 1px solid #ddd; padding: 6px 8px;
+      display: flex; justify-content: flex-end; gap: 5px;
+    }
+    .modal.ancho { width: 650px; }
+
+    /* Mapa simulado del diálogo "Configurar ubicación" */
+    .mapa-mock {
+      position: relative; height: 550px; max-height: 58vh; overflow: hidden;
+      cursor: crosshair; border: 1px solid #cfd8e3; background-color: #e9e7e2;
+      background-image:
+        repeating-linear-gradient(0deg, transparent 0 47px, #fff 47px 51px),
+        repeating-linear-gradient(90deg, transparent 0 63px, #fff 63px 67px);
+    }
+    .mapa-pin {
+      position: absolute; display: none; font-size: 17px; line-height: 1;
+      transform: translate(-50%, -100%); pointer-events: none;
+    }
+    .mapa-nota {
+      position: absolute; left: 6px; bottom: 6px; z-index: 1;
+      background: rgba(255,255,255,.85); border: 1px solid #cfd8e3; border-radius: 2px;
+      padding: 2px 6px; color: #55697d; font-size: 10px;
+    }
+    .mapa-coords { padding: 5px 1px 0; color: #33475b; }
+
     @media (max-width: 860px) {
       .field-grid, .field-grid.cols-3 { grid-template-columns: 1fr; }
       .sidebar { display: none; }
@@ -234,8 +288,8 @@
       <div class="toolbar">
         <button type="button" class="btn" onclick="expandAll(true)">Expandir todo <span class="caret">▾</span></button>
         <button type="button" class="btn" onclick="expandAll(false)">Colapsar todo <span class="caret">▴</span></button>
-        <button type="button" class="btn">Emitir contrato</button>
-        <button type="button" class="btn">Emitir certificado</button>
+        <button type="button" class="btn" onclick="abrirModal('contrato-modal')">Emitir contrato</button>
+        <button type="button" class="btn" onclick="abrirModal('certificado-modal')">Emitir certificado</button>
         <button type="button" class="btn">Guardar</button>
         <button type="button" class="btn">Guardar y registrar otro</button>
         <button type="button" class="btn">Exportar histórico</button>
@@ -259,7 +313,8 @@
               </span>
             </div>
 
-            <div class="field-grid">
+            <!-- Empresa y Colaborador sólo aparecen al responder SI -->
+            <div class="field-grid" id="reingreso-detalle" style="display:none;">
               <div class="field">
                 <label>Empresa: <span class="req">(*)</span></label>
                 <select>
@@ -270,17 +325,8 @@
               </div>
               <div class="field">
                 <label>Colaborador:</label>
-                <input type="text" id="colaborador-reingreso" maxlength="50" autocomplete="off" disabled>
+                <input type="text" maxlength="50" autocomplete="off">
               </div>
-            </div>
-
-            <!-- Fila que el Salar muestra sólo al responder SI -->
-            <div class="field full lbl-xl" id="fila-docs-digitales" style="display:none; margin-top:6px;">
-              <span style="flex:1;">¿Copiar documentos digitales? <span class="req">(*)</span></span>
-              <span class="radio-row" style="flex:0 0 auto;">
-                <label><input type="radio" name="docsdig" value="S"> SI</label>
-                <label><input type="radio" name="docsdig" value="N"> NO</label>
-              </span>
             </div>
 
           </div>
@@ -437,14 +483,127 @@
 
               <div class="field">
                 <label>Ciudad o localidad: <span class="req">(*)</span></label>
-                <!-- revisar: en el Salar este desplegable trae los ~400 municipios de Bolivia.
-                     Para la maqueta se dejan las capitales y ciudades principales. -->
-                <select>
+                <!-- Lista completa de municipios del Salar, con sus mismos value.
+                     En el Salar cada option trae data-latitud/data-longitud (usados por
+                     "Ubicación GPS domicilio"); acá se omiten porque en el origen venían
+                     todos con el mismo par de coordenadas. -->
+                <select id="ddlCiudad">
                   <option value="">&lt;SELECCIONE&gt;</option>
-                  <option>Cobija</option><option>Cochabamba</option><option>El Alto</option>
-                  <option>La Paz</option><option>Montero</option><option>Oruro</option>
-                  <option>Potosí</option><option>Santa Cruz de la Sierra</option>
-                  <option>Sucre</option><option>Tarija</option><option>Trinidad</option>
+                  <option value="1353">Acasio</option><option value="1266">Achacachi</option><option value="1259">Achocalla</option>
+                  <option value="1160">Aiquile</option><option value="1182">Alalay</option><option value="1214">Alto Beni</option>
+                  <option value="1267">Ancoraimes</option><option value="1317">Andamarca</option><option value="1306">Antequera</option>
+                  <option value="1175">Anzaldo</option><option value="1216">Apolo</option><option value="1354">Arampampa</option>
+                  <option value="1152">Arani</option><option value="1176">Arbieto</option><option value="1154">Arque</option>
+                  <option value="1400">Ascensión de Guarayos</option><option value="1367">Atocha</option><option value="1256">Aucapata</option>
+                  <option value="1257">Ayata</option><option value="1200">Ayo Ayo</option><option value="1123">Azurduy</option>
+                  <option value="1249">Batallas</option><option value="1110">Baures</option><option value="1318">Belén de Andamarca</option>
+                  <option value="1331">Bella Flor</option><option value="1430">Bermejo</option><option value="1347">Betanzos</option>
+                  <option value="1159">Bolívar</option><option value="1332">Bolpebra</option><option value="1386">Boyuibe</option>
+                  <option value="1403">Buena Vista</option><option value="1387">Cabezas</option><option value="1244">Cairoma</option>
+                  <option value="1355">Caiza D</option><option value="1230">Cajuata</option><option value="1272">Calacoto</option>
+                  <option value="1201">Calamarca</option><option value="1273">Callapa</option><option value="1131">Camargo</option>
+                  <option value="1138">Camataqui</option><option value="1388">Camiri</option><option value="1163">Capinota</option>
+                  <option value="1274">Caquiaviri</option><option value="1289">Caracollo</option><option value="1215">Caranavi</option>
+                  <option value="1300">Carangas</option><option value="1436">Caraparí</option><option value="1335">Caripuyo</option>
+                  <option value="1218">Catacora</option><option value="1220">Chacarilla</option><option value="1285">Challapata</option>
+                  <option value="1348">Chaquí</option><option value="1389">Charagua</option><option value="1275">Charaña</option>
+                  <option value="1207">Charazani (General Juan José Pérez)</option><option value="1363">Chayanta</option>
+                  <option value="1166">Chimoré</option><option value="1310">Chipaya</option><option value="1287">Choquecota</option>
+                  <option value="1268">Chua Cocani</option><option value="1280">Chulumani</option><option value="1258">Chuma</option>
+                  <option value="1364">Chuquihuta</option><option value="1356">Ckochas</option><option value="1179">Cliza</option>
+                  <option value="1024">Cobija</option><option value="1156">Cocapata</option><option value="1019">Cochabamba</option>
+                  <option value="1311">Coipasa</option><option value="1190">Colcapirhua</option><option value="1361">Colcha K</option>
+                  <option value="1202">Collana</option><option value="1172">Colomi</option><option value="1417">Colpa Bélgica</option>
+                  <option value="1342">Colquechaca</option><option value="1203">Colquencha</option><option value="1231">Colquiri</option>
+                  <option value="1276">Comanche</option><option value="1381">Comarapa</option><option value="1236">Combaya</option>
+                  <option value="1407">Concepción</option><option value="1253">Copacabana</option><option value="1264">Coripata</option>
+                  <option value="1277">Coro Coro</option><option value="1265">Coroico</option><option value="1288">Corque</option>
+                  <option value="1359">Cotagaita</option><option value="1376">Cotoca</option><option value="1295">Cruz de Machacamarca</option>
+                  <option value="1408">Cuatro Cañadas</option><option value="1185">Cuchumuela</option><option value="1390">Cuevo</option>
+                  <option value="1139">Culpina</option><option value="1313">Curahuara de Carangas</option><option value="1208">Curva</option>
+                  <option value="1223">Desaguadero</option><option value="1022">El Alto</option><option value="1397">El Carmen Rivero Tórrez</option>
+                  <option value="1290">El Choro</option><option value="1401">El Puente (Santa Cruz)</option><option value="1439">El Puente (Tarija)</option>
+                  <option value="1325">El Sena</option><option value="1377">El Torno</option><option value="1420">El Trigal</option>
+                  <option value="1141">El Villar</option><option value="1434">Entre Ríos</option><option value="1167">Entre Ríos (Cochabamba)</option>
+                  <option value="1296">Escara</option><option value="1209">Escoma</option><option value="1297">Esmeralda</option>
+                  <option value="1319">Eucaliptus</option><option value="1121">Exaltación</option><option value="1413">Fernández Alonso</option>
+                  <option value="1328">Filadelfia</option><option value="1414">General Saavedra</option><option value="1237">Guanay</option>
+                  <option value="1224">Guaqui</option><option value="1119">Guayaramerín</option><option value="1391">Gutiérrez</option>
+                  <option value="1126">Huacareta</option><option value="1128">Huacaya</option><option value="1298">Huachacalla</option>
+                  <option value="1304">Huanuni</option><option value="1111">Huaracaje</option><option value="1269">Huarina</option>
+                  <option value="1270">Huatajata</option><option value="1303">Huayllamarca</option><option value="1210">Humanata</option>
+                  <option value="1232">Ichoca</option><option value="1148">Icla</option><option value="1132">Incahuasi</option>
+                  <option value="1157">Independencia</option><option value="1320">Ingavi</option><option value="1233">Inquisivi</option>
+                  <option value="1281">Irupana</option><option value="1198">Ixiamas</option><option value="1225">Jesús de Machaca</option>
+                  <option value="1282">La Asunta</option><option value="1378">La Guardia</option><option value="1021">La Paz</option>
+                  <option value="1301">La Rivera</option><option value="1392">Lagunillas</option><option value="1250">Laja</option>
+                  <option value="1140">Las Carreras</option><option value="1234">Licoma Pampa</option><option value="1365">Llallagua</option>
+                  <option value="1350">Llica</option><option value="1116">Loreto</option><option value="1245">Luribay</option>
+                  <option value="1305">Machacamarca</option><option value="1129">Macharetí</option><option value="1112">Magdalena</option>
+                  <option value="1393">Mairana</option><option value="1246">Malla</option><option value="1238">Mapiri</option>
+                  <option value="1262">Mecapaca</option><option value="1415">Mineros</option><option value="1183">Mizque</option>
+                  <option value="1211">Mocomoco</option><option value="1369">Mojinete</option><option value="1127">Monteagudo</option>
+                  <option value="1028">Montero</option><option value="1421">Moro Moro</option><option value="1158">Morochata</option>
+                  <option value="1278">Nazacara de Pacajes</option><option value="1322">Nueva Esperanza</option><option value="1343">Ocurí</option>
+                  <option value="1428">Okinawa</option><option value="1161">Omereque</option><option value="1023">Oruro</option>
+                  <option value="1431">Padcaya</option><option value="1142">Padilla</option><option value="1383">Pailón</option>
+                  <option value="1263">Palca</option><option value="1283">Palos Blancos</option><option value="1293">Pampa Aullagas</option>
+                  <option value="1394">Pampa Grande</option><option value="1221">Papel Pampa</option><option value="1292">Paria</option>
+                  <option value="1162">Pasorapa</option><option value="1204">Patacamaya</option><option value="1307">Pazña</option>
+                  <option value="1217">Pelechuco</option><option value="1344">Pocoata</option><option value="1168">Pocona</option>
+                  <option value="1169">Pojo</option><option value="1308">Poopó</option><option value="1337">Porco</option>
+                  <option value="1135">Poroma</option><option value="1379">Porongo</option><option value="1418">Portachuelo</option>
+                  <option value="1334">Porvenir</option><option value="1422">Postrervalle</option><option value="1025">Potosí</option>
+                  <option value="1149">Presto</option><option value="1423">Pucará</option><option value="1251">Pucarani</option>
+                  <option value="1212">Puerto Acosta</option><option value="1213">Puerto Carabuco</option><option value="1326">Puerto Gonzalo Moreno</option>
+                  <option value="1252">Puerto Pérez</option><option value="1398">Puerto Quijarro</option><option value="1329">Puerto Rico</option>
+                  <option value="1113">Puerto Siles</option><option value="1399">Puerto Suárez</option><option value="1170">Puerto Villarroel</option>
+                  <option value="1357">Puna</option><option value="1186">Punata</option><option value="1239">Quiabaya</option>
+                  <option value="1286">Quillacas</option><option value="1191">Quillacollo</option><option value="1235">Quime</option>
+                  <option value="1395">Quirusillas</option><option value="1345">Ravelo</option><option value="1106">Reyes</option>
+                  <option value="1120">Riberalta</option><option value="1384">Roboré</option><option value="1107">Rurrenabaque</option>
+                  <option value="1312">Sabaya</option><option value="1173">Sacaba</option><option value="1177">Sacabamba</option>
+                  <option value="1336">Sacaca</option><option value="1382">Saipina</option><option value="1294">Salinas de Garci Mendoza</option>
+                  <option value="1396">Samaipata</option><option value="1352">San Agustín</option><option value="1117">San Andrés</option>
+                  <option value="1226">San Andrés de Machaca</option><option value="1370">San Antonio de Esmoruco</option>
+                  <option value="1409">San Antonio de Lomerío</option><option value="1187">San Benito</option><option value="1108">San Borja</option>
+                  <option value="1199">San Buenaventura</option><option value="1404">San Carlos</option><option value="1118">San Ignacio de Moxos</option>
+                  <option value="1425">San Ignacio de Velasco</option><option value="1104">San Javier (Beni)</option><option value="1410">San Javier (Santa Cruz)</option>
+                  <option value="1114">San Joaquín</option><option value="1385">San José de Chiquitos</option><option value="1405">San Juan de Yapacaní</option>
+                  <option value="1411">San Julián</option><option value="1440">San Lorenzo</option><option value="1327">San Lorenzo (Pando)</option>
+                  <option value="1133">San Lucas</option><option value="1380">San Matías</option><option value="1426">San Miguel de Velasco</option>
+                  <option value="1371">San Pablo de Lípez</option><option value="1330">San Pedro (Pando)</option><option value="1416">San Pedro (Santa Cruz)</option>
+                  <option value="1340">San Pedro de Buena Vista</option><option value="1222">San Pedro de Curahuara</option>
+                  <option value="1346">San Pedro de Macha</option><option value="1362">San Pedro de Quemes</option><option value="1254">San Pedro de Tiquina</option>
+                  <option value="1427">San Rafael de Velasco</option><option value="1115">San Ramón (Beni)</option><option value="1412">San Ramón (Santa Cruz)</option>
+                  <option value="1122">Santa Ana del Yacuma</option><option value="1026">Santa Cruz de la Sierra</option><option value="1109">Santa Rosa</option>
+                  <option value="1321">Santa Rosa del Abuná</option><option value="1419">Santa Rosa del Sara</option><option value="1316">Santiago de Huari</option>
+                  <option value="1271">Santiago de Huata</option><option value="1219">Santiago de Machaca</option><option value="1164">Santiváñez</option>
+                  <option value="1323">Santos Mercado</option><option value="1247">Sapahaqui</option><option value="1196">Shinahota</option>
+                  <option value="1205">Sica Sica</option><option value="1165">Sicaya</option><option value="1192">Sipe Sipe</option>
+                  <option value="1143">Sopachuy</option><option value="1240">Sorata</option><option value="1020">Sucre</option>
+                  <option value="1188">Tacachi</option><option value="1241">Tacacoma</option><option value="1349">Tacobamba</option>
+                  <option value="1155">Tacopaya</option><option value="1351">Tahua</option><option value="1195">Tapacarí</option>
+                  <option value="1146">Tarabuco</option><option value="1227">Taraco</option><option value="1178">Tarata</option>
+                  <option value="1027">Tarija</option><option value="1124">Tarvita</option><option value="1242">Teoponte</option>
+                  <option value="1228">Tiahuanacu</option><option value="1373">Tinguipaya</option><option value="1243">Tipuani</option>
+                  <option value="1193">Tiquipaya</option><option value="1197">Tiraque</option><option value="1255">Tito Yupanqui</option>
+                  <option value="1180">Toco</option><option value="1302">Todos Santos</option><option value="1181">Tolata</option>
+                  <option value="1315">Toledo</option><option value="1338">Tomave</option><option value="1144">Tomina</option>
+                  <option value="1341">Toro Toro</option><option value="1171">Totora (Cochabamba)</option><option value="1309">Totora (Oruro)</option>
+                  <option value="1018">Trinidad</option><option value="1368">Tupiza</option><option value="1314">Turco</option>
+                  <option value="1206">Umala</option><option value="1366">Uncía</option><option value="1432">Uriondo</option>
+                  <option value="1374">Urmiri</option><option value="1402">Urubichá</option><option value="1339">Uyuni</option>
+                  <option value="1153">Vacas</option><option value="1424">Vallegrande</option><option value="1229">Viacha</option>
+                  <option value="1184">Vila Vila</option><option value="1145">Villa Alcalá</option><option value="1134">Villa Charcas</option>
+                  <option value="1150">Villa Mojocoya</option><option value="1324">Villa Nueva</option><option value="1189">Villa Rivero</option>
+                  <option value="1125">Villa Serrano</option><option value="1174">Villa Tunari</option><option value="1130">Villa Vaca Guzmán</option>
+                  <option value="1151">Villa Zudáñez</option><option value="1437">Villamontes</option><option value="1358">Villazón</option>
+                  <option value="1194">Vinto</option><option value="1360">Vitichi</option><option value="1279">Waldo Ballivián</option>
+                  <option value="1429">Warnes</option><option value="1248">Yaco</option><option value="1438">Yacuiba</option>
+                  <option value="1147">Yamparáez</option><option value="1284">Yanacachi</option><option value="1406">Yapacaní</option>
+                  <option value="1375">Yocalla</option><option value="1137">Yotala</option><option value="1433">Yunchará</option>
+                  <option value="1299">Yunguyo del Litoral</option>
                 </select>
               </div>
               <div class="field"><label>Zona:</label><input type="text" maxlength="50"></div>
@@ -452,9 +611,9 @@
               <div class="field full">
                 <label>Ubicación GPS domicilio:</label>
                 <span style="flex:1;">
-                  Latitud: <span class="valor">----</span> &nbsp;&nbsp;&nbsp;
-                  Longitud: <span class="valor">----</span> &nbsp;&nbsp;
-                  <button type="button" class="btn-mini">Configurar</button>
+                  Latitud: <span class="valor" id="gps-lat">----</span> &nbsp;&nbsp;&nbsp;
+                  Longitud: <span class="valor" id="gps-lon">----</span> &nbsp;&nbsp;
+                  <button type="button" class="btn-mini" onclick="abrirUbicacion()">Configurar</button>
                 </span>
               </div>
 
@@ -801,12 +960,13 @@
               <div class="field lbl-lg">
                 <label>¿Aplica retroactivo?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="retro" value="S" checked> SI</label>
-                  <label><input type="radio" name="retro" value="N"> NO</label>
+                  <label><input type="radio" name="retro" value="S" checked onchange="toggleRetroBono(true)"> SI</label>
+                  <label><input type="radio" name="retro" value="N" onchange="toggleRetroBono(false)"> NO</label>
                 </span>
               </div>
               <div class="field lbl-lg">
                 <label>¿Aplica retroactivo bono de antigüedad?</label>
+                <!-- Arranca bloqueado en SI porque "¿Aplica retroactivo?" viene en SI. -->
                 <span class="radio-row">
                   <label><input type="radio" name="retrobono" value="S" checked disabled> SI</label>
                   <label><input type="radio" name="retrobono" value="N" disabled> NO</label>
@@ -932,18 +1092,20 @@
         <div class="subsection active">
           <div class="sub-header"><span class="tri">▾</span> AFP <span class="req">(*)</span></div>
           <div class="sub-body">
-            <div class="field-grid">
+            <!-- Ojo: "¿Aplica AFP? = NO" NO apaga todo el bloque; "Sucursal para la AFP"
+                 y "Tipo de asegurado" siguen activos. Ver refrescarAfp(). -->
+            <div class="field-grid cols-3">
               <div class="field">
                 <label>¿Aplica AFP?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="aplicaafp" value="S" checked> SI</label>
-                  <label><input type="radio" name="aplicaafp" value="N"> NO</label>
+                  <label><input type="radio" name="aplicaafp" value="S" checked onchange="refrescarAfp()"> SI</label>
+                  <label><input type="radio" name="aplicaafp" value="N" onchange="refrescarAfp()"> NO</label>
                 </span>
               </div>
-              <div class="field"><label>NUA AFP:</label><input type="text" maxlength="30"></div>
+              <div class="field"><label>NUA AFP:</label><input type="text" maxlength="30" id="nua-afp"></div>
               <div class="field">
-                <label>Adm. pensiones: <span class="req">(*)</span></label>
-                <select>
+                <label>Adm. pensiones: <span class="req" id="adm-pensiones-req">(*)</span></label>
+                <select id="adm-pensiones">
                   <option value="">&lt;SELECCIONE&gt;</option>
                   <option>En proceso</option><option>Gestora pública</option>
                   <option>Otra</option><option>Previsión</option>
@@ -952,19 +1114,20 @@
               <div class="field">
                 <label>¿Está jubilado?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="jubilado" value="S"> SI</label>
-                  <label><input type="radio" name="jubilado" value="N" checked> NO</label>
+                  <label><input type="radio" name="jubilado" value="S" onchange="refrescarAfp()"> SI</label>
+                  <label><input type="radio" name="jubilado" value="N" checked onchange="refrescarAfp()"> NO</label>
                 </span>
               </div>
-              <div class="field"><label>Fecha de jubilación:</label><input type="date"></div>
+              <!-- Estos dos arrancan inactivos porque "¿Está jubilado?" viene en NO. -->
+              <div class="field"><label>Fecha de jubilación:</label><input type="date" id="fecha-jubilacion" disabled></div>
               <div class="field">
                 <label>¿Aporta a la AFP?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="aportaafp" value="S" checked> SI</label>
-                  <label><input type="radio" name="aportaafp" value="N"> NO</label>
+                  <label><input type="radio" name="aportaafp" value="S" checked disabled> SI</label>
+                  <label><input type="radio" name="aportaafp" value="N" disabled> NO</label>
                 </span>
               </div>
-              <div class="field lbl-lg">
+              <div class="field">
                 <label>Sucursal para la AFP: <span class="req">(*)</span></label>
                 <select>
                   <option value="">&lt;SELECCIONE&gt;</option>
@@ -987,12 +1150,12 @@
         <div class="subsection active">
           <div class="sub-header"><span class="tri">▾</span> Caja de salud</div>
           <div class="sub-body">
-            <div class="field-grid">
-              <div class="field lbl-lg">
+            <div class="field-grid cols-3">
+              <div class="field">
                 <label>¿Aplica caja de salud?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="aplicacaja" value="S" checked> SI</label>
-                  <label><input type="radio" name="aplicacaja" value="N"> NO</label>
+                  <label><input type="radio" name="aplicacaja" value="S" checked onchange="toggleCajaSalud(true)"> SI</label>
+                  <label><input type="radio" name="aplicacaja" value="N" onchange="toggleCajaSalud(false)"> NO</label>
                 </span>
               </div>
               <div class="field">
@@ -1011,10 +1174,10 @@
                   <option>Seguro delegado.</option>
                 </select>
               </div>
-              <div class="field lbl-lg"><label>Nº asegurado caja:</label><input type="text" maxlength="30"></div>
+              <div class="field"><label>Nº asegurado caja:</label><input type="text" maxlength="30" id="nro-asegurado-caja"></div>
               <div class="field"><label>Lugar de expedición:</label><input type="text"></div>
-              <div class="field lbl-lg"><label>Fecha de expedición:</label><input type="date"></div>
-              <div class="field lbl-lg">
+              <div class="field"><label>Fecha de expedición:</label><input type="date"></div>
+              <div class="field">
                 <label>Sucursal para la caja: <span class="req">(*)</span></label>
                 <select>
                   <option value="">&lt;SELECCIONE&gt;</option>
@@ -1029,40 +1192,41 @@
         <div class="subsection">
           <div class="sub-header"><span class="tri">▸</span> RC-IVA <span class="req">(*)</span></div>
           <div class="sub-body">
-            <div class="field-grid">
-              <div class="field lbl-lg">
+            <div class="field-grid cols-3">
+              <div class="field">
                 <label>¿Aplica planilla tributaria?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="plantrib" value="S" checked> SI</label>
-                  <label><input type="radio" name="plantrib" value="N"> NO</label>
+                  <label><input type="radio" name="plantrib" value="S" checked onchange="toggleRcIva(true)"> SI</label>
+                  <label><input type="radio" name="plantrib" value="N" onchange="toggleRcIva(false)"> NO</label>
                 </span>
               </div>
-              <div class="field lbl-xl">
+              <!-- Ocupa dos columnas para que la fila siguiente arranque limpia. -->
+              <div class="field" style="grid-column: span 2;">
                 <label>¿Sueldo neto CERO en planilla tributaria?</label>
                 <span class="radio-row">
                   <label><input type="radio" name="netocero" value="S"> SI</label>
                   <label><input type="radio" name="netocero" value="N" checked> NO</label>
                 </span>
               </div>
-              <div class="field lbl-lg"><label>Código dependiente RC-IVA:</label><input type="text" maxlength="30"></div>
-              <div class="field lbl-lg"><label>Saldo RC-IVA inicial: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
-              <div class="field full lbl-lg">
-                <label>Período saldo RC-IVA inicial: <span class="req">(*)</span></label>
-                <span style="flex:1; display:flex; gap:6px;">
-                  <select style="max-width:140px;">
+              <div class="field"><label>Código dependiente RC-IVA:</label><input type="text" maxlength="30"></div>
+              <div class="field"><label>Saldo RC-IVA inicial: <span class="req" id="saldo-rciva-req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field">
+                <label>Período saldo RC-IVA inicial: <span class="req" id="periodo-rciva-req">(*)</span></label>
+                <span style="flex:1; display:flex; gap:6px; min-width:0;">
+                  <select style="max-width:110px;">
                     <option value="">&lt;SELECCIONE&gt;</option>
                     <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
                     <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
                     <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
                   </select>
-                  <select style="max-width:110px;">
+                  <select style="max-width:80px;">
                     <option value="">&lt;SELECCIONE&gt;</option>
                     <option>2023</option><option>2024</option><option>2025</option><option>2026</option>
                   </select>
                 </span>
               </div>
-              <div class="field lbl-xl"><label>Mínimo no imponible personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
-              <div class="field lbl-lg"><label>13% 1 SMN personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
+              <div class="field"><label>Mínimo no imponible personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
+              <div class="field"><label>13% 1 SMN personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
             </div>
           </div>
         </div>
@@ -1089,14 +1253,57 @@
               <div class="field"><label>Cuenta bancaria: <span class="req">(*)</span></label><input type="text" maxlength="30"></div>
               <div class="field">
                 <label>Banco: <span class="req">(*)</span></label>
-                <!-- revisar: la lista real trae ~48 bancos, mutuales y cooperativas. -->
-                <select>
+                <!-- Lista completa del Salar (bancos, mutuales y cooperativas), con sus value. -->
+                <select id="ddlBanco">
                   <option value="">&lt;SELECCIONE&gt;</option>
-                  <option>BISA</option><option>Crédito</option><option>Ecofuturo</option>
-                  <option>Económico</option><option>Fassil</option><option>FIE</option>
-                  <option>Fortaleza</option><option>Ganadero</option><option>Los Andes</option>
-                  <option>Mercantil Santa Cruz</option><option>Nacional</option><option>Prodem</option>
-                  <option>Sol</option><option>Unión</option>
+                  <option value="48">Banco Do Brasil</option>
+                  <option value="36">BISA</option>
+                  <option value="76">Cooperativa Catedral</option>
+                  <option value="72">Cooperativa Comarapa</option>
+                  <option value="75">Cooperativa Educadores Gran Chaco</option>
+                  <option value="74">Cooperativa El Chorolque</option>
+                  <option value="62">Cooperativa Fátima</option>
+                  <option value="65">Cooperativa Hospicio</option>
+                  <option value="68">Cooperativa Incahuassi</option>
+                  <option value="60">Cooperativa Jesús Nazareno</option>
+                  <option value="64">Cooperativa Loyola</option>
+                  <option value="67">Cooperativa PIO X</option>
+                  <option value="69">Cooperativa Quillacollo</option>
+                  <option value="66">Cooperativa San Antonio</option>
+                  <option value="78">Cooperativa San Joaquín</option>
+                  <option value="70">Cooperativa San Jose de Punata</option>
+                  <option value="61">Cooperativa San Martin</option>
+                  <option value="73">Cooperativa San Mateo</option>
+                  <option value="63">Cooperativa San Pedro</option>
+                  <option value="79">Cooperativa Trapetrol Oriente</option>
+                  <option value="71">Cooperativa Trinidad</option>
+                  <option value="37">Crédito</option>
+                  <option value="44">Ecofuturo</option>
+                  <option value="38">Económico</option>
+                  <option value="43" selected>Fassil</option>
+                  <option value="45">FIE</option>
+                  <option value="81">Fondo Financiero de la Comunidad</option>
+                  <option value="47">Fortaleza</option>
+                  <option value="39">Ganadero</option>
+                  <option value="40">Los Andes</option>
+                  <option value="77">Magisterio Rural</option>
+                  <option value="34">Mercantil Santa Cruz</option>
+                  <option value="57">Mutual del Pueblo</option>
+                  <option value="52">Mutual el Progreso</option>
+                  <option value="50">Mutual Guapay</option>
+                  <option value="53">Mutual La Plata</option>
+                  <option value="49">Mutual la Primera</option>
+                  <option value="51">Mutual la Promotora</option>
+                  <option value="55">Mutual la Tarija</option>
+                  <option value="59">Mutual Manutata</option>
+                  <option value="56">Mutual Paititi</option>
+                  <option value="58">Mutual Pando</option>
+                  <option value="54">Mutual Potosí</option>
+                  <option value="42">Nacional</option>
+                  <option value="80">Nacional Financiera Boliviana SAN</option>
+                  <option value="46">Prodem</option>
+                  <option value="41">Sol</option>
+                  <option value="35">Unión</option>
                 </select>
               </div>
               <div class="field lbl-lg">
@@ -1257,21 +1464,24 @@
           <div class="sub-header"><span class="tri">▾</span> Asistencias <span class="req">(*)</span></div>
           <div class="sub-body">
             <div class="field-grid">
-              <div class="field lbl-lg"><label>Código de asistencia: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
-              <div class="field lbl-lg">
-                <label>Días trabajados x mes:</label>
-                <select><option>30</option><option>26</option><option>25</option></select>
+              <!-- Estos tres van juntos en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Código de asistencia: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+                <div class="field">
+                  <label>Días trabajados x mes:</label>
+                  <select><option>30</option><option>26</option><option>25</option></select>
+                </div>
+                <div class="field">
+                  <label>¿Controlar asistencia?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="ctrlasis" value="S" checked> SI</label>
+                    <label><input type="radio" name="ctrlasis" value="N"> NO</label>
+                  </span>
+                </div>
               </div>
-              <div class="field lbl-lg">
-                <label>¿Controlar asistencia?</label>
-                <span class="radio-row">
-                  <label><input type="radio" name="ctrlasis" value="S" checked> SI</label>
-                  <label><input type="radio" name="ctrlasis" value="N"> NO</label>
-                </span>
-              </div>
-              <div class="field lbl-xl">
+              <div class="field full lbl-xl">
                 <label>Modo de clasificación de horas extras: <span class="req">(*)</span></label>
-                <select>
+                <select style="max-width:220px;">
                   <option value="">&lt;SELECCIONE&gt;</option>
                   <option>Día de la semana</option><option>Día de descanso</option>
                 </select>
@@ -1279,8 +1489,8 @@
               <div class="field lbl-lg">
                 <label>¿Aplica bono de horas extras?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="bonohe" value="S"> SI</label>
-                  <label><input type="radio" name="bonohe" value="N" checked> NO</label>
+                  <label><input type="radio" name="bonohe" value="S" onchange="toggleCalcHE(true)"> SI</label>
+                  <label><input type="radio" name="bonohe" value="N" checked onchange="toggleCalcHE(false)"> NO</label>
                 </span>
               </div>
               <div class="field lbl-xl">
@@ -1299,11 +1509,12 @@
                   <label><input type="radio" name="heconvenio" value="N" checked> NO</label>
                 </span>
               </div>
+              <!-- Arranca bloqueado en NO porque "¿Aplica bono de horas extras?" viene en NO. -->
               <div class="field full lbl-xl">
                 <label>¿Calcular horas extras en base al tiempo trabajado del período?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="hetiempo" value="S"> SI</label>
-                  <label><input type="radio" name="hetiempo" value="N" checked> NO</label>
+                  <label><input type="radio" name="hetiempo" value="S" disabled> SI</label>
+                  <label><input type="radio" name="hetiempo" value="N" checked disabled> NO</label>
                 </span>
               </div>
               <div class="field lbl-xl">
@@ -1392,8 +1603,8 @@
               <div class="field full lbl-xl">
                 <label>¿Permitir marcaciones virtuales por la aplicación móvil?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="marcapp" value="S"> SI</label>
-                  <label><input type="radio" name="marcapp" value="N" checked> NO</label>
+                  <label><input type="radio" name="marcapp" value="S" onchange="toggleRestriccion(true)"> SI</label>
+                  <label><input type="radio" name="marcapp" value="N" checked onchange="toggleRestriccion(false)"> NO</label>
                 </span>
               </div>
               <div class="field full lbl-xl">
@@ -1407,19 +1618,29 @@
                 <label>¿Controlar ubicación de marcaciones virtuales?</label>
                 <span style="flex:1; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
                   <span class="radio-row">
-                    <label><input type="radio" name="ctrlubic" value="S"> SI</label>
-                    <label><input type="radio" name="ctrlubic" value="N" checked> NO</label>
+                    <label><input type="radio" name="ctrlubic" value="S" onchange="toggleUbicMarc(true)"> SI</label>
+                    <label><input type="radio" name="ctrlubic" value="N" checked onchange="toggleUbicMarc(false)"> NO</label>
                   </span>
-                  <span>Latitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;"></span>
-                  <span>Longitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;"></span>
+                  <!-- Arrancan inactivos porque "¿Controlar ubicación…?" viene en NO. -->
+                  <span>Latitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;" id="ubic-lat" disabled></span>
+                  <span>Longitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;" id="ubic-lon" disabled></span>
                   <button type="button" class="btn-mini">Configurar</button>
                 </span>
               </div>
+              <!-- Arranca bloqueado en NO porque las marcaciones por app vienen en NO. -->
               <div class="field lbl-lg">
                 <label>¿Habilitar restricción?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="habrestr" value="S" disabled> SI</label>
-                  <label><input type="radio" name="habrestr" value="N" checked disabled> NO</label>
+                  <label><input type="radio" name="habrestr" value="S" disabled onchange="toggleTipoMarcacion(true)"> SI</label>
+                  <label><input type="radio" name="habrestr" value="N" checked disabled onchange="toggleTipoMarcacion(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo aparece con "¿Habilitar restricción? = SI" (arranca oculto). -->
+              <div class="field lbl-xl" id="tipo-marcacion" style="display:none;">
+                <label>Tipo de marcación virtual permitida</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="tipomarc" value="E"> Entrada</label>
+                  <label><input type="radio" name="tipomarc" value="S"> Salida</label>
                 </span>
               </div>
               <div class="field lbl-lg"><label>Identificador de celular:</label><input type="text" maxlength="50"></div>
@@ -1469,17 +1690,26 @@
               <div class="field full lbl-xl">
                 <label>¿Personalizar coeficientes de horas extras?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="coefhe" value="S"> SI</label>
-                  <label><input type="radio" name="coefhe" value="N" checked> NO</label>
+                  <label><input type="radio" name="coefhe" value="S" onchange="toggleCoefHE(true)"> SI</label>
+                  <label><input type="radio" name="coefhe" value="N" checked onchange="toggleCoefHE(false)"> NO</label>
                 </span>
               </div>
+              <!-- Sólo aparecen con "¿Personalizar coeficientes…? = SI" (arrancan ocultos). -->
+              <div class="field lbl-xl coef-he" style="display:none;"><label>Coeficiente horas extras domingos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl coef-he" style="display:none;"><label>Coeficiente horas extras feriados: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
               <div class="field full lbl-xl">
                 <label>¿Personalizar multiplicador de faltas?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="multfaltas" value="S"> SI</label>
-                  <label><input type="radio" name="multfaltas" value="N" checked> NO</label>
+                  <label><input type="radio" name="multfaltas" value="S" onchange="toggleMultFaltas(true)"> SI</label>
+                  <label><input type="radio" name="multfaltas" value="N" checked onchange="toggleMultFaltas(false)"> NO</label>
                 </span>
               </div>
+              <!-- Sólo aparecen con "¿Personalizar multiplicador…? = SI" (arrancan ocultos). -->
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia regulares: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia domingos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia feriados: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas con licencia: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas por atrasos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
               <div class="field full lbl-xl">
                 <label>¿Aplica multas por faltas acumuladas en el año?</label>
                 <span class="radio-row">
@@ -1717,7 +1947,8 @@
                   <label><input type="radio" name="modoauth" value="4" checked onchange="toggleAuth(false)"> Azure</label>
                 </span>
               </div>
-              <div class="field full"><label>Cuenta ingreso: <span class="req">(*)</span></label><input type="text" maxlength="100"></div>
+              <!-- Sólo en modo Azure (arranca visible porque Azure viene marcado). -->
+              <div class="field full auth-azure"><label>Cuenta ingreso: <span class="req">(*)</span></label><input type="text" maxlength="100"></div>
 
               <div class="field auth-interno" style="display:none;"><label>Contraseña: <span class="req">(*)</span></label><input type="password" maxlength="20" autocomplete="off"></div>
               <div class="field auth-interno lbl-lg" style="display:none;">
@@ -1804,8 +2035,17 @@
               </div>
               <div class="field full lbl-xl"><label>¿Permitir registrar objetivos?</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="ag10" value="S" checked> SI</label>
-                  <label><input type="radio" name="ag10" value="N"> NO</label>
+                  <label><input type="radio" name="ag10" value="S" checked onchange="toggleAlcances(true)"> SI</label>
+                  <label><input type="radio" name="ag10" value="N" onchange="toggleAlcances(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo con "¿Permitir registrar objetivos? = SI" (arranca visible). -->
+              <div class="field full lbl-xl" id="alcances-habilitados">
+                <label>Alcances habilitados</label>
+                <span class="radio-row">
+                  <label><input type="checkbox" name="alcance" value="I" checked disabled> Individual</label>
+                  <label><input type="checkbox" name="alcance" value="U"> Unidad organizativa</label>
+                  <label><input type="checkbox" name="alcance" value="O"> Organización</label>
                 </span>
               </div>
               <div class="field full lbl-xl"><label>¿Permitir registrar retroalimentación?</label>
@@ -1924,8 +2164,8 @@
       <div class="toolbar" style="margin-top:12px;">
         <button type="button" class="btn" onclick="expandAll(true)">Expandir todo <span class="caret">▾</span></button>
         <button type="button" class="btn" onclick="expandAll(false)">Colapsar todo <span class="caret">▴</span></button>
-        <button type="button" class="btn">Emitir contrato</button>
-        <button type="button" class="btn">Emitir certificado</button>
+        <button type="button" class="btn" onclick="abrirModal('contrato-modal')">Emitir contrato</button>
+        <button type="button" class="btn" onclick="abrirModal('certificado-modal')">Emitir certificado</button>
         <button type="button" class="btn">Guardar</button>
         <button type="button" class="btn">Guardar y registrar otro</button>
         <button type="button" class="btn">Exportar histórico</button>
@@ -1933,6 +2173,95 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ============================ MODALES ============================ -->
+<div class="modal-fondo" id="modal-fondo" onclick="cerrarModal()"></div>
+
+<!-- Emitir contrato -->
+<div class="modal" id="contrato-modal" role="dialog" aria-modal="true" aria-labelledby="contrato-titulo">
+  <div class="modal-titulo">
+    <span id="contrato-titulo">Emitir contrato</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <div class="field">
+      <label for="ddlModeloContrato">Modelo de contrato: <span class="req">(*)</span></label>
+      <select id="ddlModeloContrato" onchange="ocultarError(this)">
+        <option value="-1">&lt;SELECCIONE&gt;</option>
+        <option value="1706">Acuerdo de Capacitación</option>
+        <option value="1704">Adenda al contrato -Indefinido</option>
+        <option value="1705">Adenda al contrato -plazo fijo</option>
+        <option value="1703">Contrato a plazo fijo</option>
+        <option value="1702">Indefinido</option>
+      </select>
+    </div>
+    <div class="modal-error">Seleccione un modelo de contrato.</div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="emitir('contrato-modal', 'contrato')">Emitir</button>
+  </div>
+</div>
+
+<!-- Emitir certificado -->
+<div class="modal" id="certificado-modal" role="dialog" aria-modal="true" aria-labelledby="certificado-titulo">
+  <div class="modal-titulo">
+    <span id="certificado-titulo">Emitir certificado</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <div class="field">
+      <label for="ddlModeloCertificado">Modelo de certificado: <span class="req">(*)</span></label>
+      <select id="ddlModeloCertificado" onchange="ocultarError(this)">
+        <option value="-1">&lt;SELECCIONE&gt;</option>
+        <option value="1821">Agradecimiento por servicios -forzoso</option>
+        <option value="1819">Carta de renuncia voluntaria</option>
+        <option value="1823">Certificado de pasantías</option>
+        <option value="1824">Certificado de recomendación</option>
+        <option value="1816">Certificado de trabajo c/sueldo</option>
+        <option value="1815">Certificado de trabajo retirado</option>
+        <option value="1814">Certificado Trabajo Sueldo</option>
+        <option value="1820">Compromiso de mejora de desempeño</option>
+        <option value="1817">Comunicado examen post-ocupacional</option>
+        <option value="1826">Constancia de trabajo -COVID 19</option>
+        <option value="1825">Entrega de puesto de trabajo</option>
+        <option value="1818">Finalización de contrato a plazo fijo</option>
+        <option value="1822">Retiro forzoso -resultados financieros</option>
+      </select>
+    </div>
+    <div class="modal-error">Seleccione un modelo de certificado.</div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="emitir('certificado-modal', 'certificado')">Emitir</button>
+  </div>
+</div>
+
+<!-- Configurar ubicación GPS -->
+<div class="modal ancho" id="ubicacion-modal" role="dialog" aria-modal="true" aria-labelledby="ubicacion-titulo">
+  <div class="modal-titulo">
+    <span id="ubicacion-titulo">Configurar ubicación</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <!-- En el Salar acá va un Google Maps embebido. La maqueta no puede cargarlo
+         (necesita clave de API y conexión), así que se simula: se hace clic para
+         ubicar el punto y las coordenadas salen de interpolar la posición. -->
+    <div class="mapa-mock" id="mapa-mock" onclick="marcarUbicacion(event)">
+      <span class="mapa-pin" id="mapa-pin">📍</span>
+      <span class="mapa-nota">Mapa simulado — en el Salar es Google Maps</span>
+    </div>
+    <div class="mapa-coords" id="mapa-coords"></div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="guardarUbicacion()">Guardar</button>
+    <button type="button" class="btn" onclick="limpiarUbicacion()">Limpiar</button>
   </div>
 </div>
 
@@ -1955,12 +2284,70 @@
     });
   }
 
+  /* ---------- Modal: configurar ubicación GPS ---------- */
+
+  // Punto elegido en el mapa, en % del recuadro. null = sin ubicación.
+  var gpsPunto = null;
+
+  // Recuadro sobre el que se interpolan las coordenadas del punto.
+  var GPS_AREA = { latArriba: -17.70, latAbajo: -17.86, lonIzq: -63.26, lonDer: -63.10 };
+
+  function abrirUbicacion() {
+    abrirModal('ubicacion-modal');
+    pintarUbicacion();
+  }
+
+  function marcarUbicacion(e) {
+    var caja = document.getElementById('mapa-mock').getBoundingClientRect();
+    gpsPunto = {
+      x: (e.clientX - caja.left) / caja.width * 100,
+      y: (e.clientY - caja.top) / caja.height * 100
+    };
+    pintarUbicacion();
+  }
+
+  function coordsUbicacion() {
+    if (!gpsPunto) return null;
+    return {
+      lat: GPS_AREA.latArriba + (GPS_AREA.latAbajo - GPS_AREA.latArriba) * gpsPunto.y / 100,
+      lon: GPS_AREA.lonIzq + (GPS_AREA.lonDer - GPS_AREA.lonIzq) * gpsPunto.x / 100
+    };
+  }
+
+  // Refresca el pin y la lectura de coordenadas dentro del diálogo.
+  function pintarUbicacion() {
+    var pin = document.getElementById('mapa-pin');
+    var lectura = document.getElementById('mapa-coords');
+    var c = coordsUbicacion();
+    if (!c) {
+      pin.style.display = 'none';
+      lectura.textContent = 'Sin ubicación seleccionada — haga clic en el mapa.';
+      return;
+    }
+    pin.style.display = 'block';
+    pin.style.left = gpsPunto.x + '%';
+    pin.style.top = gpsPunto.y + '%';
+    lectura.textContent = 'Latitud: ' + c.lat.toFixed(6) + '   Longitud: ' + c.lon.toFixed(6);
+  }
+
+  function limpiarUbicacion() {
+    gpsPunto = null;
+    pintarUbicacion();
+  }
+
+  // Vuelca las coordenadas al campo del formulario y cierra.
+  function guardarUbicacion() {
+    var c = coordsUbicacion();
+    document.getElementById('gps-lat').textContent = c ? c.lat.toFixed(6) : '----';
+    document.getElementById('gps-lon').textContent = c ? c.lon.toFixed(6) : '----';
+    cerrarModal();
+  }
+
   /* ---------- Campos condicionales ---------- */
 
-  // Reingreso: habilita Colaborador y muestra "¿Copiar documentos digitales?".
+  // Reingreso: Empresa y Colaborador sólo se muestran al responder SI.
   function toggleReingreso(show) {
-    document.getElementById('colaborador-reingreso').disabled = !show;
-    document.getElementById('fila-docs-digitales').style.display = show ? 'flex' : 'none';
+    document.getElementById('reingreso-detalle').style.display = show ? 'grid' : 'none';
   }
 
   // Datos personales: "Nombre completo" sólo se muestra si se personaliza.
@@ -1977,12 +2364,160 @@
     });
   }
 
-  // Autenticación: las contraseñas sólo aplican al modo Interno.
+  // AFP: "¿Aplica AFP? = NO" apaga NUA, Adm. pensiones y ¿Está jubilado? (forzado a NO).
+  // La fecha de jubilación y "¿Aporta a la AFP?" dependen además de "¿Está jubilado?":
+  // con NO quedan inactivos y el aporte vuelve a SI.
+  function refrescarAfp() {
+    var aplica = document.querySelector('input[name="aplicaafp"]:checked').value === 'S';
+
+    // Sin AFP, "¿Está jubilado?" vuelve a NO (y queda bloqueado como el resto).
+    if (!aplica) {
+      document.querySelectorAll('input[name="jubilado"]').forEach(function (r) {
+        r.checked = (r.value === 'N');
+      });
+    }
+    var jubilado = document.querySelector('input[name="jubilado"]:checked').value === 'S';
+
+    // "Sucursal para la AFP" y "Tipo de asegurado" quedan afuera: siguen activos
+    // aunque no se aplique AFP. El (*) de Adm. pensiones se oculta al apagarse.
+    document.querySelectorAll('#nua-afp, #adm-pensiones, input[name="jubilado"]').forEach(function (el) {
+      el.disabled = !aplica;
+    });
+    document.getElementById('adm-pensiones-req').style.display = aplica ? '' : 'none';
+
+    document.querySelectorAll('#fecha-jubilacion, input[name="aportaafp"]').forEach(function (el) {
+      el.disabled = !jubilado;
+    });
+    if (!jubilado) {
+      document.querySelectorAll('input[name="aportaafp"]').forEach(function (r) {
+        r.checked = (r.value === 'S');
+      });
+    }
+  }
+
+  // RC-IVA: sin planilla tributaria, el saldo y el período dejan de ser obligatorios
+  // (el Salar les saca el asterisco rojo).
+  function toggleRcIva(aplica) {
+    document.querySelectorAll('#saldo-rciva-req, #periodo-rciva-req').forEach(function (el) {
+      el.style.display = aplica ? '' : 'none';
+    });
+  }
+
+  // Horas extras: sin bono de horas extras, el cálculo por tiempo trabajado se
+  // bloquea y vuelve a NO.
+  function toggleCalcHE(aplica) {
+    document.querySelectorAll('input[name="hetiempo"]').forEach(function (r) {
+      r.disabled = !aplica;
+      if (!aplica) r.checked = (r.value === 'N');
+    });
+  }
+
+  // Marcaciones por app: sin marcaciones virtuales por la app, "¿Habilitar
+  // restricción?" se bloquea y vuelve a NO (lo que además oculta el tipo de marcación).
+  function toggleRestriccion(permite) {
+    document.querySelectorAll('input[name="habrestr"]').forEach(function (r) {
+      r.disabled = !permite;
+      if (!permite) r.checked = (r.value === 'N');
+    });
+    if (!permite) toggleTipoMarcacion(false);
+  }
+
+  // Restricción: el tipo de marcación permitida sólo aparece con restricción en SI.
+  function toggleTipoMarcacion(restringe) {
+    document.getElementById('tipo-marcacion').style.display = restringe ? '' : 'none';
+  }
+
+  // Horas extras: los coeficientes personalizados sólo aparecen al personalizarlos.
+  function toggleCoefHE(personaliza) {
+    document.querySelectorAll('.coef-he').forEach(function (el) {
+      el.style.display = personaliza ? 'flex' : 'none';
+    });
+  }
+
+  // Faltas: los multiplicadores personalizados sólo aparecen al personalizarlos.
+  function toggleMultFaltas(personaliza) {
+    document.querySelectorAll('.mult-faltas').forEach(function (el) {
+      el.style.display = personaliza ? 'flex' : 'none';
+    });
+  }
+
+  // Desempeño: los alcances sólo aparecen si se permite registrar objetivos.
+  function toggleAlcances(permite) {
+    document.getElementById('alcances-habilitados').style.display = permite ? 'flex' : 'none';
+  }
+
+  // Marcaciones: sin control de ubicación, Latitud y Longitud se deshabilitan.
+  function toggleUbicMarc(controla) {
+    document.querySelectorAll('#ubic-lat, #ubic-lon').forEach(function (el) {
+      el.disabled = !controla;
+    });
+  }
+
+  // Caja de salud: sin caja no hay número de asegurado.
+  function toggleCajaSalud(aplica) {
+    document.getElementById('nro-asegurado-caja').disabled = !aplica;
+  }
+
+  // Retroactivo: con SI el bono de antigüedad queda forzado en SI y bloqueado;
+  // con NO se habilita y se puede elegir.
+  function toggleRetroBono(retro) {
+    document.querySelectorAll('input[name="retrobono"]').forEach(function (r) {
+      r.disabled = retro;
+      if (retro) r.checked = (r.value === 'S');
+    });
+  }
+
+  // Autenticación: las contraseñas sólo aplican al modo Interno; la cuenta de
+  // ingreso, sólo al modo Azure.
   function toggleAuth(interno) {
     document.querySelectorAll('.auth-interno').forEach(function (el) {
       el.style.display = interno ? 'flex' : 'none';
     });
+    document.querySelectorAll('.auth-azure').forEach(function (el) {
+      el.style.display = interno ? 'none' : 'flex';
+    });
   }
+
+  /* ---------- Modales: emitir contrato / certificado ---------- */
+
+  // Abre el diálogo. Si trae un desplegable, arranca sin seleccionar (como el Salar).
+  function abrirModal(id) {
+    var modal = document.getElementById(id);
+    var sel = modal.querySelector('select');
+    var error = modal.querySelector('.modal-error');
+    if (sel) sel.selectedIndex = 0;
+    if (error) error.classList.remove('visible');
+    document.getElementById('modal-fondo').classList.add('abierto');
+    modal.classList.add('abierto');
+    if (sel) sel.focus();
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-fondo').classList.remove('abierto');
+    document.querySelectorAll('.modal').forEach(function (m) { m.classList.remove('abierto'); });
+  }
+
+  function ocultarError(sel) {
+    sel.closest('.modal').querySelector('.modal-error').classList.remove('visible');
+  }
+
+  // El modelo es obligatorio: sin él no se emite.
+  function emitir(id, que) {
+    var modal = document.getElementById(id);
+    var sel = modal.querySelector('select');
+    if (sel.value === '-1') {
+      modal.querySelector('.modal-error').classList.add('visible');
+      sel.focus();
+      return;
+    }
+    cerrarModal();
+    alert('Emitiendo ' + que + ': ' + sel.options[sel.selectedIndex].text);
+  }
+
+  // Esc cierra el diálogo abierto.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarModal();
+  });
 
   /* ---------- Tablas repetibles ---------- */
 
