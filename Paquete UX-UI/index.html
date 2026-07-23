@@ -130,6 +130,13 @@
     .field > label { flex: 0 0 118px; color: #33475b; font-size: 11px; }
     .field.lbl-lg > label { flex: 0 0 190px; }
     .field.lbl-xl > label { flex: 0 0 285px; }
+
+    /* En filas de 3 columnas los controles no deben estirarse: se ven compactos. */
+    .fila-3 .field > input, .fila-3 .field > select { flex: 0 1 auto; max-width: 150px; }
+
+    /* Numeración jerárquica (la agrega numerarFormulario() al cargar). */
+    .num { color: #8a97a5; font-weight: normal; margin-right: 3px; }
+    .group-header .num, .sub-header .num { color: inherit; font-weight: bold; }
     .field > input, .field > select, .field > textarea { flex: 1 1 auto; min-width: 0; }
     .field > .radio-row, .field > .valor, .field > .radio-col { flex: 1 1 auto; min-width: 0; }
     .radio-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
@@ -755,30 +762,39 @@
             <div class="field-grid">
               <div class="field"><label>Cod. colaborador: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
               <div class="field"><label>Primer fecha de ingreso:</label><span class="valor">----</span></div>
-              <div class="field"><label>Fec. ingreso: <span class="req">(*)</span></label><input type="date"></div>
-              <div class="field lbl-lg"><label>Fec. ingreso vacaciones: <span class="req">(*)</span></label><input type="date"></div>
-              <div class="field lbl-lg"><label>Fec. ingreso antigüedad vacaciones: <span class="req">(*)</span></label><input type="date"></div>
-              <div class="field lbl-lg"><label>Fec. ingreso caja salud: <span class="req">(*)</span></label><input type="date"></div>
-              <div class="field lbl-lg"><label>Fec. ingreso para bono de antigüedad: <span class="req">(*)</span></label><input type="date"></div>
-              <div class="field lbl-lg"><label>Días de antigüedad adicional: <span class="req">(*)</span></label><input type="text" maxlength="5"></div>
-              <div class="field lbl-lg">
+              <!-- Estas tres fechas van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fec. ingreso: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso vacaciones: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso antigüedad vacaciones: <span class="req">(*)</span></label><input type="date"></div>
+              </div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fec. ingreso caja salud: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso para bono de antigüedad: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Días de antigüedad adicional: <span class="req">(*)</span></label><input type="text" maxlength="5"></div>
+              </div>
+              <div class="field full lbl-lg">
                 <label>Motivo de movimiento de ingreso: <span class="req">(*)</span></label>
-                <select>
+                <select style="max-width:220px;">
                   <option value="">&lt;SELECCIONE&gt;</option>
                   <option>NO ESPECIFICADO</option><option>Renuncia 110</option>
                 </select>
               </div>
-              <div class="field">
-                <label>Modalidad de trabajo: <span class="req">(*)</span></label>
-                <select>
-                  <option value="">&lt;SELECCIONE&gt;</option>
-                  <option>No especificado</option><option>Presencial</option>
-                  <option>Remoto</option><option>Semipresencial</option>
-                </select>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>Modalidad de trabajo: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>No especificado</option><option>Presencial</option>
+                    <option>Remoto</option><option>Semipresencial</option>
+                  </select>
+                </div>
+                <div class="field"><label>Teléfono fijo:</label><input type="text" maxlength="50"></div>
+                <div class="field"><label>Teléfono móvil:</label><input type="text" maxlength="20"></div>
               </div>
-              <div class="field"><label>Teléfono fijo:</label><input type="text" maxlength="50"></div>
-              <div class="field"><label>Teléfono móvil:</label><input type="text" maxlength="20"></div>
-              <div class="field full"><label>Correo: <span class="req">(*)</span></label><input type="text" maxlength="100"></div>
+              <div class="field full"><label>Correo: <span class="req">(*)</span></label><input type="text" maxlength="100" style="max-width:320px;"></div>
               <div class="field full"><label>Dirección:</label><input type="text" maxlength="200"></div>
               <div class="field"><label>Fecha egreso:</label><span class="valor">----</span></div>
               <div class="field"><label>Estado:</label><span class="valor">Activo</span></div>
@@ -793,10 +809,10 @@
             <div class="field-grid">
               <div class="field"><label>Gerencia:</label><span class="valor">----</span></div>
               <div class="field"><label>Jefatura:</label><span class="valor">----</span></div>
-              <div class="field">
+              <div class="field full">
                 <label>Unidad de negocio: <span class="req">(*)</span></label>
                 <!-- revisar: lista propia de cada empresa; se dejan las del HTML de referencia. -->
-                <select>
+                <select style="max-width:280px;">
                   <option value="">&lt;SELECCIONE&gt;</option>
                   <option>Administración y Finanzas</option><option>Administración y Servicios</option>
                   <option>Almacén Cochabamba</option><option>Almacén La Paz</option>
@@ -842,7 +858,7 @@
           <div class="sub-header"><span class="tri">▾</span> Contrato <span class="req">(*)</span></div>
           <div class="sub-body">
             <div class="field-grid">
-              <div class="field full">
+              <div class="field">
                 <label>Clasificación laboral: <span class="req">(*)</span></label>
                 <select>
                   <option value="">&lt;SELECCIONE&gt;</option>
@@ -860,24 +876,30 @@
                 </select>
               </div>
               <div class="field"><label>Número de contrato:</label><input type="text"></div>
-              <div class="field">
-                <label>Modalidad de contrato: <span class="req">(*)</span></label>
-                <select>
-                  <option value="">&lt;SELECCIONE&gt;</option>
-                  <option>A plazo fijo</option><option>Condicional o eventual</option>
-                  <option>Por realización de obra o servicio</option><option>Por temporada</option>
-                  <option>Tiempo indefinido</option>
-                </select>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>Modalidad de contrato: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>A plazo fijo</option><option>Condicional o eventual</option>
+                    <option>Por realización de obra o servicio</option><option>Por temporada</option>
+                    <option>Tiempo indefinido</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Tipo de contrato: <span class="req">(*)</span></label>
+                  <select><option value="">&lt;SELECCIONE&gt;</option><option>Escrito</option><option>Verbal</option></select>
+                </div>
+                <div class="field"><label>¿Quién autorizó la contratación?</label><input type="text"></div>
               </div>
-              <div class="field">
-                <label>Tipo de contrato: <span class="req">(*)</span></label>
-                <select><option value="">&lt;SELECCIONE&gt;</option><option>Escrito</option><option>Verbal</option></select>
-              </div>
-              <div class="field lbl-lg"><label>¿Quién autorizó la contratación?</label><input type="text"></div>
               <div class="field full start"><label>Motivo de contratación:</label><textarea rows="2" maxlength="100"></textarea></div>
-              <div class="field"><label>Fecha de finalización:</label><input type="date" disabled></div>
-              <div class="field"><label>Fecha de ratificación:</label><input type="date"></div>
-              <div class="field lbl-lg"><label>Fecha de última renovación de contrato:</label><input type="date"></div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fecha de finalización:</label><input type="date" disabled></div>
+                <div class="field"><label>Fecha de ratificación:</label><input type="date"></div>
+                <div class="field"><label>Fecha de última renovación de contrato:</label><input type="date"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -918,37 +940,41 @@
           <div class="sub-header"><span class="tri">▾</span> Remuneración <span class="req">(*)</span></div>
           <div class="sub-body">
             <div class="field-grid">
-              <div class="field"><label>Modo haber básico:</label><span class="valor">----</span></div>
-              <div class="field"><label>Haber básico:</label><span class="valor">----</span></div>
+              <div class="field"><label>Modo haber básico:</label><span class="valor">Monto mensual</span></div>
+              <div class="field"><label>Haber básico:</label><span class="valor">3,651.00</span></div>
               <div class="field">
                 <label>Modo quincena:</label>
                 <span class="radio-row">
-                  <label><input type="radio" name="modoquincena" value="1" checked> Porcentaje</label>
-                  <label><input type="radio" name="modoquincena" value="2"> Monto</label>
+                  <label><input type="radio" name="modoquincena" value="1" checked onchange="toggleModoQuincena('Porcentaje')"> Porcentaje</label>
+                  <label><input type="radio" name="modoquincena" value="2" onchange="toggleModoQuincena('Monto')"> Monto</label>
                 </span>
               </div>
-              <div class="field"><label>Monto: <span class="req">(*)</span></label><input type="text" maxlength="18"></div>
+              <!-- La etiqueta sigue al modo de quincena elegido (arranca en Porcentaje). -->
+              <div class="field"><label><span id="lbl-monto-quincena">Porcentaje</span>: <span class="req">(*)</span></label><input type="text" maxlength="18"></div>
 
-              <div class="field lbl-lg">
-                <label>¿Sujeto a bono de antigüedad?</label>
-                <span class="radio-row">
-                  <label><input type="radio" name="bonoant" value="S" checked> SI</label>
-                  <label><input type="radio" name="bonoant" value="N"> NO</label>
-                </span>
-              </div>
-              <div class="field lbl-lg">
-                <label>¿Aguinaldo/prima desde el primer mes?</label>
-                <span class="radio-row">
-                  <label><input type="radio" name="aguimes" value="S" checked> SI</label>
-                  <label><input type="radio" name="aguimes" value="N"> NO</label>
-                </span>
-              </div>
-              <div class="field lbl-lg">
-                <label>¿Aplica aguinaldo de navidad?</label>
-                <span class="radio-row">
-                  <label><input type="radio" name="agui1" value="S" checked> SI</label>
-                  <label><input type="radio" name="agui1" value="N"> NO</label>
-                </span>
+              <!-- Estos tres van juntos en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>¿Sujeto a bono de antigüedad?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="bonoant" value="S" checked> SI</label>
+                    <label><input type="radio" name="bonoant" value="N"> NO</label>
+                  </span>
+                </div>
+                <div class="field">
+                  <label>¿Aguinaldo/prima desde el primer mes?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="aguimes" value="S" checked> SI</label>
+                    <label><input type="radio" name="aguimes" value="N"> NO</label>
+                  </span>
+                </div>
+                <div class="field">
+                  <label>¿Aplica aguinaldo de navidad?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="agui1" value="S" checked> SI</label>
+                    <label><input type="radio" name="agui1" value="N"> NO</label>
+                  </span>
+                </div>
               </div>
               <div class="field lbl-lg">
                 <label>¿Aplica 2do aguinaldo?</label>
@@ -1465,7 +1491,7 @@
           <div class="sub-body">
             <div class="field-grid">
               <!-- Estos tres van juntos en una fila (subgrilla de 3 columnas). -->
-              <div class="field-grid cols-3" style="grid-column: 1 / -1;">
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
                 <div class="field"><label>Código de asistencia: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
                 <div class="field">
                   <label>Días trabajados x mes:</label>
@@ -2446,6 +2472,11 @@
     document.getElementById('alcances-habilitados').style.display = permite ? 'flex' : 'none';
   }
 
+  // Remuneración: la etiqueta del campo sigue al modo de quincena (Porcentaje/Monto).
+  function toggleModoQuincena(texto) {
+    document.getElementById('lbl-monto-quincena').textContent = texto;
+  }
+
   // Marcaciones: sin control de ubicación, Latitud y Longitud se deshabilitan.
   function toggleUbicMarc(controla) {
     document.querySelectorAll('#ubic-lat, #ubic-lon').forEach(function (el) {
@@ -2552,6 +2583,43 @@
     }
     fila.remove();
   }
+
+  /* ---------- Numeración jerárquica ---------- */
+
+  // Numera automáticamente: grupo (1), subsección (1.1) y campo (1.1.1).
+  // Al ser automática, si se agrega o quita un campo la numeración se reajusta sola.
+  (function numerarFormulario() {
+    function ponerNumero(el, texto) {
+      var span = document.createElement('span');
+      span.className = 'num';
+      span.textContent = texto;
+      var tri = el.querySelector(':scope > .tri');
+      if (tri) el.insertBefore(span, tri.nextSibling);
+      else el.insertBefore(span, el.firstChild);
+    }
+
+    var grupo = 0;
+    document.querySelectorAll('.section').forEach(function (section) {
+      grupo++;
+      var gh = section.querySelector(':scope > .group-header');
+      if (gh) ponerNumero(gh, grupo + '.');
+
+      var sub = 0;
+      section.querySelectorAll('.subsection').forEach(function (subseccion) {
+        sub++;
+        var sh = subseccion.querySelector(':scope > .sub-header');
+        if (sh) ponerNumero(sh, grupo + '.' + sub);
+
+        var campo = 0;
+        subseccion.querySelectorAll('.field').forEach(function (field) {
+          var label = field.querySelector(':scope > label');
+          if (!label) return;
+          campo++;
+          ponerNumero(label, grupo + '.' + sub + '.' + campo + ' ');
+        });
+      });
+    });
+  })();
 </script>
 </body>
 </html>
