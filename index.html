@@ -320,7 +320,7 @@
               </span>
             </div>
 
-            <!-- El Salar muestra Empresa + Colaborador sólo al responder SI -->
+            <!-- Empresa y Colaborador sólo aparecen al responder SI -->
             <div class="field-grid" id="reingreso-detalle" style="display:none;">
               <div class="field">
                 <label>Empresa: <span class="req">(*)</span></label>
@@ -331,11 +331,8 @@
                 </select>
               </div>
               <div class="field">
-                <label>Colaborador: <span class="req">(*)</span></label>
-                <input type="text" list="colab-reingreso" maxlength="50" autocomplete="off" placeholder="Escriba el nombre…">
-                <datalist id="colab-reingreso">
-                  <option value="Serrano Alvarado Javier Andre (retiro 14/01/2020)"></option>
-                </datalist>
+                <label>Colaborador:</label>
+                <input type="text" maxlength="50" autocomplete="off">
               </div>
             </div>
 
@@ -827,9 +824,6 @@
                   <option>Gestión Humana</option><option>Negocios</option><option>Proyectos</option>
                   <option>Sistemas y TI</option><option>Slotting e Inventarios</option>
                   <option>Transporte y Distribución</option>
-                  <option>Transporte/Distribución Cochabamba</option>
-                  <option>Transporte/Distribución La Paz</option>
-                  <option>Transporte/Distribución Santa Cruz</option>
                 </select>
               </div>
               <div class="field">
@@ -1029,14 +1023,14 @@
               <div class="field full start lbl-xl">
                 <label>Forma de cálculo de indemnización para quinquenios:</label>
                 <span class="radio-col">
-                  <label><input type="radio" name="calcind" value="1" checked onchange="toggleQuinqQ(false)"> Desde el último quinquenio</label>
-                  <label><input type="radio" name="calcind" value="2" onchange="toggleQuinqQ(false)"> Desde el último pago a cuenta de indemnización</label>
-                  <label><input type="radio" name="calcind" value="3" onchange="toggleQuinqQ(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
-                  <label><input type="radio" name="calcind" value="4" onchange="toggleQuinqQ(false)"> Desde la fecha de ingreso</label>
-                  <label><input type="radio" name="calcind" value="5" onchange="toggleQuinqQ(true)"> Selección</label>
+                  <label><input type="radio" name="calcind" value="1" checked> Desde el último quinquenio</label>
+                  <label><input type="radio" name="calcind" value="2"> Desde el último pago a cuenta de indemnización</label>
+                  <label><input type="radio" name="calcind" value="3"> Desde el último quinquenio – ignorando retiros parciales</label>
+                  <label><input type="radio" name="calcind" value="4"> Desde la fecha de ingreso</label>
+                  <label><input type="radio" name="calcind" value="5"> Selección</label>
                 </span>
               </div>
-              <div class="field full lbl-xl" id="rem-quinq-q-wrap" style="display:none;">
+              <div class="field full lbl-xl">
                 <label>Último quinquenio consolidado: <span class="req">(*)</span></label>
                 <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
               </div>
@@ -1044,14 +1038,14 @@
               <div class="field full start lbl-xl">
                 <label>Forma de cálculo de indemnización para retiros:</label>
                 <span class="radio-col">
-                  <label><input type="radio" name="calcindret" value="1" checked onchange="toggleQuinqR(false)"> Desde el último quinquenio</label>
-                  <label><input type="radio" name="calcindret" value="2" onchange="toggleQuinqR(false)"> Desde el último pago a cuenta de indemnización</label>
-                  <label><input type="radio" name="calcindret" value="4" onchange="toggleQuinqR(false)"> Desde el último quinquenio – ignorando retiros parciales</label>
-                  <label><input type="radio" name="calcindret" value="3" onchange="toggleQuinqR(false)"> Desde la fecha de ingreso</label>
-                  <label><input type="radio" name="calcindret" value="5" onchange="toggleQuinqR(true)"> Selección</label>
+                  <label><input type="radio" name="calcindret" value="1" checked> Desde el último quinquenio</label>
+                  <label><input type="radio" name="calcindret" value="2"> Desde el último pago a cuenta de indemnización</label>
+                  <label><input type="radio" name="calcindret" value="4"> Desde el último quinquenio – ignorando retiros parciales</label>
+                  <label><input type="radio" name="calcindret" value="3"> Desde la fecha de ingreso</label>
+                  <label><input type="radio" name="calcindret" value="5"> Selección</label>
                 </span>
               </div>
-              <div class="field full lbl-xl" id="rem-quinq-r-wrap" style="display:none;">
+              <div class="field full lbl-xl">
                 <label>Último quinquenio consolidado para retiros: <span class="req">(*)</span></label>
                 <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
               </div>
@@ -2377,7 +2371,7 @@
 
   /* ---------- Campos condicionales ---------- */
 
-  // Reingreso: el Salar muestra Empresa + Colaborador sólo al responder SI.
+  // Reingreso: Empresa y Colaborador sólo se muestran al responder SI.
   function toggleReingreso(show) {
     document.getElementById('reingreso-detalle').style.display = show ? 'grid' : 'none';
   }
@@ -2388,10 +2382,6 @@
       el.style.display = show ? '' : 'none';
     });
   }
-
-  // Remuneración: "Selección" en las formas de cálculo de indemnización habilita el quinquenio consolidado.
-  function toggleQuinqQ(show) { document.getElementById('rem-quinq-q-wrap').style.display = show ? 'flex' : 'none'; }
-  function toggleQuinqR(show) { document.getElementById('rem-quinq-r-wrap').style.display = show ? 'flex' : 'none'; }
 
   // Datos personales: muestra los campos del documento secundario.
   function toggleDocSecundario(show) {
