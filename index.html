@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alta de colaborador — Maqueta completa (estilo "el Salar")</title>
+
+  <!-- =====================================================================
+       ARCHIVO ÚNICO Y AUTOCONTENIDO — formulario completo.
+       Estilos, formulario y comportamiento, todo acá adentro.
+       Se abre con doble clic; no necesita servidor ni archivos externos.
+
+       Fuente: HTML real de la pantalla "Modificar colaborador" del Salar.
+       Escala real: fuente 12px, filas compactas, etiqueta a la IZQUIERDA
+       del campo, inputs celestes con borde cyan.
+       ===================================================================== -->
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      color: #333;
+      background: #16305c;
+    }
+
+    /* ---------- Layout general ---------- */
+    .frame   { padding: 6px; }
+    .layout  { display: flex; background: #fff; min-height: 100vh; }
+    .sidebar { width: 182px; flex: 0 0 182px; background: #fff; border-right: 1px solid #cfd8e3; }
+    .main    { flex: 1 1 auto; min-width: 0; background: #fff; padding: 0 0 20px; }
+
+    /* ---------- Barra lateral ---------- */
+    .nav-title {
+      background: #4f7cb2; color: #fff; font-weight: bold; font-size: 11px;
+      padding: 5px 9px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .nav-item {
+      background: #fff; color: #234a6d; font-size: 11px;
+      padding: 4px 9px; border-bottom: 1px solid #dfe6ee;
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    }
+    .nav-item:hover { background: #f2f6fb; }
+    .nav-group {
+      margin: 3px 5px; padding: 4px 7px; font-size: 11px;
+      background: linear-gradient(#e7f0fa, #d5e5f6);
+      border: 1px solid #b8d0ea; border-radius: 3px;
+      color: #234a6d; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    }
+    .nav-caret { color: #234a6d; font-size: 10px; }
+
+    /* ---------- Encabezado de pantalla ---------- */
+    .breadcrumb { background: #fff; text-align: right; padding: 3px 12px 0; color: #7a8aa0; font-size: 17px; font-weight: 300; }
+    .breadcrumb span { color: #9bb0c8; }
+    .screen-title {
+      background: #d9ead3; color: #274e13; font-weight: bold; font-size: 12px;
+      padding: 5px 10px; border: 1px solid #b7d3a8; display: flex; align-items: center; gap: 10px;
+    }
+    .btn-help {
+      background: linear-gradient(#7cb267, #5e9450); color: #fff; border: 1px solid #4d7d40;
+      border-radius: 3px; padding: 3px 8px; font-size: 10px; cursor: pointer;
+    }
+    .main-intro { padding: 6px 10px 3px; color: #2b5a8c; }
+
+    /* ---------- Barra de botones ---------- */
+    .toolbar {
+      background: #e2e2e2; border: 1px solid #cfcfcf;
+      margin: 4px 8px 8px; padding: 6px; border-radius: 3px;
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .btn {
+      background: linear-gradient(#5a8bc0, #3f6fa5); color: #fff;
+      border: 1px solid #2f5580; border-radius: 3px;
+      padding: 3px 9px; font-size: 11px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn:hover { background: linear-gradient(#6699cc, #477ab3); }
+    .btn .caret { font-size: 9px; opacity: .9; }
+
+    /* ---------- Bloques de sección ---------- */
+    .section { margin: 0 8px; }
+
+    .group-header {
+      background: #cfe3f5; color: #1c3d63; font-weight: bold; font-size: 11px;
+      padding: 4px 8px; border: 1px solid #b4d0ea; border-radius: 2px;
+      margin: 5px 0 3px; display: flex; align-items: center; gap: 6px; cursor: pointer;
+    }
+    .group-header .tri { color: #1c3d63; font-size: 10px; }
+
+    .subsection { margin: 3px 0; border: 1px solid #d5d5d5; border-radius: 3px; background: #fff; }
+    .subsection.active > .sub-header { background: #eef2f6; }
+    .sub-header {
+      padding: 4px 8px; display: flex; align-items: center; gap: 6px;
+      cursor: pointer; color: #333;
+    }
+    .sub-header:hover { background: #f6f8fa; }
+    .sub-header .tri { color: #7a1f1f; font-size: 9px; width: 9px; }
+    .sub-body { display: none; padding: 7px 9px 9px; border-top: 1px solid #e3e3e3; background: #fdfdfd; }
+    .subsection.active > .sub-body { display: block; }
+
+    .req { color: #c8102e; font-weight: bold; }
+
+    /* ---------- Controles ---------- */
+    input[type="text"], input[type="password"], input[type="date"], select {
+      padding: 2px 4px; border: 1px solid #6cb8d8; border-radius: 2px;
+      font-size: 11px; font-family: inherit; background: #e8f4fc; color: #333;
+      width: 100%; height: 20px;
+    }
+    textarea {
+      padding: 2px 4px; border: 1px solid #6cb8d8; border-radius: 2px;
+      font-size: 11px; font-family: inherit; background: #e8f4fc; color: #333;
+      width: 100%; resize: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #2f7fc1; background: #fff;
+      box-shadow: 0 0 0 2px rgba(79,124,178,.18);
+    }
+    input:disabled, select:disabled, textarea:disabled { background: #e1e1e1; color: #777; border-color: #b9c4d0; }
+    input[type="radio"], input[type="checkbox"] {
+      width: auto; height: auto; margin: 0 3px 0 0; vertical-align: middle;
+    }
+
+    /* ---------- Formulario: etiqueta a la IZQUIERDA ---------- */
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 16px; }
+    .field-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .field { display: flex; flex-direction: row; align-items: center; gap: 7px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field.start { align-items: flex-start; }
+    .field > label { flex: 0 0 118px; color: #33475b; font-size: 11px; }
+    .field.lbl-lg > label { flex: 0 0 190px; }
+    .field.lbl-xl > label { flex: 0 0 285px; }
+
+    /* En filas de 3 columnas los controles no deben estirarse: se ven compactos. */
+    .fila-3 .field > input, .fila-3 .field > select { flex: 0 1 auto; max-width: 150px; }
+
+    /* Numeración jerárquica (la agrega numerarFormulario() al cargar). */
+    .num { color: #8a97a5; font-weight: normal; margin-right: 3px; }
+    .group-header .num, .sub-header .num { color: inherit; font-weight: bold; }
+    .field > input, .field > select, .field > textarea { flex: 1 1 auto; min-width: 0; }
+    .field > .radio-row, .field > .valor, .field > .radio-col { flex: 1 1 auto; min-width: 0; }
+    .radio-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .radio-col { display: flex; flex-direction: column; gap: 1px; }
+    .valor { color: #333; }
+    .hint { color: #8a97a5; font-size: 10px; }
+
+    /* Columna de fotografía, a la derecha (rowspan del Salar) */
+    .fila-con-foto { display: flex; gap: 16px; align-items: flex-start; }
+    .fila-con-foto > .field-grid { flex: 1 1 auto; min-width: 0; }
+    .col-foto { flex: 0 0 186px; display: flex; gap: 7px; align-items: flex-start; }
+    .col-foto > label { flex: 0 0 62px; color: #33475b; font-size: 11px; padding-top: 2px; }
+    .sub-title {
+      grid-column: 1 / -1; color: #2b5a8c; font-weight: bold;
+      border-bottom: 1px solid #e0e7ef; padding-bottom: 3px; margin-top: 4px;
+    }
+
+    /* ---------- Tablas ---------- */
+    .tabla-rep { width: 100%; border-collapse: collapse; }
+    .tabla-rep th {
+      background: #eef2f6; color: #1c3d63; font-size: 10px; font-weight: bold;
+      text-align: left; padding: 4px 5px; border-bottom: 1px solid #d5d5d5;
+    }
+    .tabla-rep td { padding: 2px 5px; vertical-align: middle; }
+    .tabla-rep .col-x { width: 24px; text-align: center; }
+    .tabla-rep .quitar { color: #c8102e; font-weight: bold; cursor: pointer; }
+    .tabla-rep td.solo-lectura { color: #777; }
+    .btn-add {
+      display: inline-flex; align-items: center; gap: 6px; margin: 0 0 7px;
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: #1c3d63; font-size: 11px; font-family: inherit;
+    }
+    .btn-add .plus {
+      background: #2f7fc1; color: #fff; width: 14px; height: 14px; border-radius: 2px;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1;
+    }
+    .tabla-wrap { overflow-x: auto; }
+    .tabla-dias th, .tabla-dias td { text-align: center; }
+    .tabla-dias input { text-align: center; }
+
+    .btn-mini {
+      background: linear-gradient(#f6f6f6, #e4e4e4); border: 1px solid #b9c4d0;
+      border-radius: 2px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: #333;
+    }
+    .foto-caja {
+      width: 110px; height: 110px; border: 1px solid gray; background: #f4f4f4;
+      display: flex; align-items: center; justify-content: center; color: #999; font-size: 10px;
+    }
+
+    /* ---------- Modal (réplica del diálogo jQuery UI del Salar) ---------- */
+    .modal-fondo {
+      display: none; position: fixed; inset: 0;
+      background: #aaa; opacity: .3; z-index: 100;
+    }
+    .modal-fondo.abierto { display: block; }
+
+    .modal {
+      display: none; position: fixed; z-index: 101;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 400px; max-width: calc(100vw - 16px);
+      background: #fff; border: 1px solid #ddd; border-radius: 3px;
+      box-shadow: 0 2px 9px rgba(0,0,0,.28);
+    }
+    .modal.abierto { display: block; }
+    .modal-titulo {
+      background: linear-gradient(#f6f6f6, #ededed);
+      border-bottom: 1px solid #ddd; border-radius: 3px 3px 0 0;
+      padding: 5px 8px; display: flex; align-items: center; justify-content: space-between;
+      color: #333; font-weight: bold; font-size: 12px;
+    }
+    .modal-cerrar {
+      background: none; border: none; padding: 0 2px; cursor: pointer;
+      color: #888; font-size: 13px; line-height: 1; font-family: inherit;
+    }
+    .modal-cerrar:hover { color: #333; }
+    .modal-cuerpo { padding: 9px 10px; }
+    .modal-error { display: none; color: #c8102e; margin-top: 5px; }
+    .modal-error.visible { display: block; }
+    .modal-pie {
+      border-top: 1px solid #ddd; padding: 6px 8px;
+      display: flex; justify-content: flex-end; gap: 5px;
+    }
+    .modal.ancho { width: 650px; }
+
+    /* Mapa simulado del diálogo "Configurar ubicación" */
+    .mapa-mock {
+      position: relative; height: 550px; max-height: 58vh; overflow: hidden;
+      cursor: crosshair; border: 1px solid #cfd8e3; background-color: #e9e7e2;
+      background-image:
+        repeating-linear-gradient(0deg, transparent 0 47px, #fff 47px 51px),
+        repeating-linear-gradient(90deg, transparent 0 63px, #fff 63px 67px);
+    }
+    .mapa-pin {
+      position: absolute; display: none; font-size: 17px; line-height: 1;
+      transform: translate(-50%, -100%); pointer-events: none;
+    }
+    .mapa-nota {
+      position: absolute; left: 6px; bottom: 6px; z-index: 1;
+      background: rgba(255,255,255,.85); border: 1px solid #cfd8e3; border-radius: 2px;
+      padding: 2px 6px; color: #55697d; font-size: 10px;
+    }
+    .mapa-coords { padding: 5px 1px 0; color: #33475b; }
+
+    @media (max-width: 860px) {
+      .field-grid, .field-grid.cols-3 { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="frame">
+  <div class="layout">
+
+    <!-- ============================ MENÚ LATERAL ============================ -->
+    <div class="sidebar">
+      <div class="nav-title">MENÚ <span class="nav-caret">▾</span></div>
+
+      <div class="nav-group"><span><span class="nav-caret">▸</span> AUTOGESTIÓN</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▾</span> COLABORADORES</span></div>
+
+      <div class="nav-item">Parámetros <span class="nav-caret">▸</span></div>
+      <div class="nav-item">Consultar y modificar</div>
+      <div class="nav-item">Modificar masivamente</div>
+      <div class="nav-item">Modificar por lote</div>
+      <div class="nav-item">Asignar unidades de negocio por colaborador</div>
+      <div class="nav-item">Registrar hijos por lote</div>
+      <div class="nav-item">Registrar herederos por lote</div>
+      <div class="nav-item">Registrar garantes por lote</div>
+      <div class="nav-item">Reportes <span class="nav-caret">▸</span></div>
+
+      <div class="nav-group"><span><span class="nav-caret">▸</span> ORGANIZACIÓN</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> DOCUMENTACIÓN</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> MOVIMIENTOS</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> ASISTENCIA</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> COMEDOR</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> CAPACITACIONES</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> SUELDOS Y SALARIOS</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> OTRAS REMUNERACIONES</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> CONTABILIDAD</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> SEGURIDAD</span></div>
+      <div class="nav-group"><span><span class="nav-caret">▸</span> DESEMPEÑO</span></div>
+    </div>
+
+    <!-- ============================ PANEL PRINCIPAL ============================ -->
+    <div class="main">
+
+      <div class="breadcrumb">Movimientos <span>›</span> Altas</div>
+
+      <div class="screen-title">
+        Modificar colaborador
+        <button type="button" class="btn-help">⑦ Ayuda de la pantalla</button>
+      </div>
+
+      <div class="main-intro">Consulte o gestione la información disponible.</div>
+
+      <div class="toolbar">
+        <button type="button" class="btn" onclick="expandAll(true)">Expandir todo <span class="caret">▾</span></button>
+        <button type="button" class="btn" onclick="expandAll(false)">Colapsar todo <span class="caret">▴</span></button>
+        <button type="button" class="btn" onclick="abrirModal('contrato-modal')">Emitir contrato</button>
+        <button type="button" class="btn" onclick="abrirModal('certificado-modal')">Emitir certificado</button>
+        <button type="button" class="btn">Guardar</button>
+        <button type="button" class="btn">Guardar y registrar otro</button>
+        <button type="button" class="btn">Exportar histórico</button>
+        <button type="button" class="btn">Volver</button>
+      </div>
+
+      <!-- ==================================================================
+           1. REINGRESO DE COLABORADOR
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> REINGRESO DE COLABORADOR</div>
+
+        <div class="subsection active">
+          <div class="sub-body" style="display:block;">
+
+            <div class="field full lbl-xl" style="margin-bottom:8px;">
+              <span style="flex:1;">¿Se trata de un colaborador actualmente retirado pero previamente registrado en esta u otra empresa del grupo?</span>
+              <span class="radio-row" style="flex:0 0 auto;">
+                <label><input type="radio" name="reingreso" value="S" onchange="toggleReingreso(true)"> SI</label>
+                <label><input type="radio" name="reingreso" value="N" checked onchange="toggleReingreso(false)"> NO</label>
+              </span>
+            </div>
+
+            <!-- Empresa y Colaborador sólo aparecen al responder SI -->
+            <div class="field-grid" id="reingreso-detalle" style="display:none;">
+              <div class="field">
+                <label>Empresa: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>DEMO</option>
+                  <option>OTRO DEMO</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Colaborador:</label>
+                <input type="text" maxlength="50" autocomplete="off">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           2. INFORMACIÓN PERSONAL
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> INFORMACIÓN PERSONAL <span class="req">(*)</span></div>
+
+        <!-- ---------- Datos personales ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Datos personales <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <!-- Las 5 primeras filas comparten la columna de Fotografía,
+                 que en el Salar es un <td rowspan="5"> a la derecha. -->
+            <div class="fila-con-foto">
+              <div class="field-grid">
+                <div class="field"><label>1er Nombre: <span class="req">(*)</span></label><input type="text" maxlength="30"></div>
+                <div class="field"><label>2do Nombre:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>3er Nombre:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. paterno:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. materno:</label><input type="text" maxlength="30"></div>
+                <div class="field"><label>Ap. casada:</label><input type="text" maxlength="30"></div>
+                <div class="field">
+                  <label>¿Personalizar nombre completo?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="nomcompleto" value="S" onchange="toggleNombreCompleto(true)"> SI</label>
+                    <label><input type="radio" name="nomcompleto" value="N" checked onchange="toggleNombreCompleto(false)"> NO</label>
+                  </span>
+                </div>
+                <!-- Etiqueta e input llevan la clase "nombrecompleto": el Salar los
+                     oculta al responder NO, porque arma el nombre con nombres y apellidos.
+                     El hueco de la celda se mantiene, igual que el <td> del original. -->
+                <div class="field">
+                  <label class="nombrecompleto" style="display:none;">Nombre completo: <span class="req">(*)</span></label>
+                  <input type="text" class="nombrecompleto" maxlength="180" style="display:none;">
+                </div>
+                <div class="field"><label>Doc. Ident.: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+                <div class="field">
+                  <label>Extensión: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
+                    <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
+                    <option>Oruro</option><option>Pando</option><option>Potosí</option>
+                    <option>Santa Cruz</option><option>Tarija</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-foto">
+                <label>Fotografía:</label>
+                <div>
+                  <button type="button" class="btn-mini">Cargar</button>
+                  <button type="button" class="btn-mini">Quitar</button>
+                  <div class="foto-caja" style="margin-top:5px;">sin fotografía</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-grid" style="margin-top:4px;">
+              <div class="field">
+                <label>Tipo doc.: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Carnet de identidad</option><option>Pasaporte</option><option>RUN</option>
+                  <option>Carnet de extranjero</option><option>Otro</option><option>Certificado de nacimiento</option>
+                </select>
+              </div>
+              <div class="field"><label>Adicional SEGIP:</label><input type="text" maxlength="20"></div>
+              <div class="field"><label>Venc. documento:</label><input type="date"></div>
+
+              <div class="field">
+                <label>¿Documento secundario?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="docsec" value="S" onchange="toggleDocSecundario(true)"> SI</label>
+                  <label><input type="radio" name="docsec" value="N" checked onchange="toggleDocSecundario(false)"> NO</label>
+                </span>
+              </div>
+
+              <!-- Campos del documento secundario: el Salar los muestra sólo al responder SI -->
+              <div class="sub-title doc-sec" style="display:none;">Documento secundario</div>
+              <div class="field doc-sec" style="display:none;"><label>Doc. Ident.: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+              <div class="field doc-sec" style="display:none;">
+                <label>Extensión: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Beni</option><option>Cochabamba</option><option>Chuquisaca</option>
+                  <option>Extranjero</option><option>La Paz</option><option>No aplica</option>
+                  <option>Oruro</option><option>Pando</option><option>Potosí</option>
+                  <option>Santa Cruz</option><option>Tarija</option>
+                </select>
+              </div>
+              <div class="field doc-sec" style="display:none;">
+                <label>Tipo doc.: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Carnet de identidad</option><option>Pasaporte</option><option>RUN</option>
+                  <option>Carnet de extranjero</option><option>Otro</option><option>Certificado de nacimiento</option>
+                </select>
+              </div>
+              <div class="field doc-sec" style="display:none;"><label>Adicional SEGIP:</label><input type="text" maxlength="20"></div>
+
+              <div class="field"><label>Fec. nacimiento: <span class="req">(*)</span></label><input type="date"></div>
+              <div class="field"><label>Nombre del padre:</label><input type="text"></div>
+              <div class="field"><label>Nombre de la madre:</label><input type="text"></div>
+
+              <div class="field">
+                <label>País nacionalidad: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>ARGENTINA</option><option>BOLIVIANA</option><option>BRASILERA</option>
+                  <option>CHILENA</option><option>COLOMBIANA</option><option>ECUATORIANA</option>
+                  <option>ESPAÑA</option><option>ESTADOUNIDENSE</option><option>ITALIANA</option>
+                  <option>MEXICANA</option><option>NICARAGÜENSE</option><option>PARAGUAYA</option>
+                  <option>PERUANA</option><option>URUGUAYA</option><option>VENEZOLANA</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>¿Nacionalidad boliviana?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nacbol" value="S" checked> SI</label>
+                  <label><input type="radio" name="nacbol" value="N"> NO</label>
+                </span>
+              </div>
+
+              <div class="field full"><label>Lugar de nacimiento:</label><input type="text" maxlength="100"></div>
+
+              <div class="field">
+                <label>Sexo:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="sexo" value="M"> M</label>
+                  <label><input type="radio" name="sexo" value="F"> F</label>
+                </span>
+              </div>
+              <div class="field">
+                <label>Estado civil: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Soltero(a)</option><option>Casado(a)</option><option>Divorciado(a)</option>
+                  <option>Viudo(a)</option><option>Separado(a)</option><option>Unión libre</option>
+                </select>
+              </div>
+
+              <div class="field"><label>Lic. de conducir:</label><input type="text" maxlength="20"></div>
+              <div class="field"><label>Venc. licencia:</label><input type="date"></div>
+              <div class="field"><label>Teléfono fijo:</label><input type="text" maxlength="50"></div>
+              <div class="field"><label>Teléfono móvil:</label><input type="text" maxlength="20"></div>
+
+              <div class="field full"><label>Dirección: <span class="req">(*)</span></label><input type="text"></div>
+
+              <div class="field">
+                <label>Ciudad o localidad: <span class="req">(*)</span></label>
+                <!-- Lista completa de municipios del Salar, con sus mismos value.
+                     En el Salar cada option trae data-latitud/data-longitud (usados por
+                     "Ubicación GPS domicilio"); acá se omiten porque en el origen venían
+                     todos con el mismo par de coordenadas. -->
+                <select id="ddlCiudad">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option value="1353">Acasio</option><option value="1266">Achacachi</option><option value="1259">Achocalla</option>
+                  <option value="1160">Aiquile</option><option value="1182">Alalay</option><option value="1214">Alto Beni</option>
+                  <option value="1267">Ancoraimes</option><option value="1317">Andamarca</option><option value="1306">Antequera</option>
+                  <option value="1175">Anzaldo</option><option value="1216">Apolo</option><option value="1354">Arampampa</option>
+                  <option value="1152">Arani</option><option value="1176">Arbieto</option><option value="1154">Arque</option>
+                  <option value="1400">Ascensión de Guarayos</option><option value="1367">Atocha</option><option value="1256">Aucapata</option>
+                  <option value="1257">Ayata</option><option value="1200">Ayo Ayo</option><option value="1123">Azurduy</option>
+                  <option value="1249">Batallas</option><option value="1110">Baures</option><option value="1318">Belén de Andamarca</option>
+                  <option value="1331">Bella Flor</option><option value="1430">Bermejo</option><option value="1347">Betanzos</option>
+                  <option value="1159">Bolívar</option><option value="1332">Bolpebra</option><option value="1386">Boyuibe</option>
+                  <option value="1403">Buena Vista</option><option value="1387">Cabezas</option><option value="1244">Cairoma</option>
+                  <option value="1355">Caiza D</option><option value="1230">Cajuata</option><option value="1272">Calacoto</option>
+                  <option value="1201">Calamarca</option><option value="1273">Callapa</option><option value="1131">Camargo</option>
+                  <option value="1138">Camataqui</option><option value="1388">Camiri</option><option value="1163">Capinota</option>
+                  <option value="1274">Caquiaviri</option><option value="1289">Caracollo</option><option value="1215">Caranavi</option>
+                  <option value="1300">Carangas</option><option value="1436">Caraparí</option><option value="1335">Caripuyo</option>
+                  <option value="1218">Catacora</option><option value="1220">Chacarilla</option><option value="1285">Challapata</option>
+                  <option value="1348">Chaquí</option><option value="1389">Charagua</option><option value="1275">Charaña</option>
+                  <option value="1207">Charazani (General Juan José Pérez)</option><option value="1363">Chayanta</option>
+                  <option value="1166">Chimoré</option><option value="1310">Chipaya</option><option value="1287">Choquecota</option>
+                  <option value="1268">Chua Cocani</option><option value="1280">Chulumani</option><option value="1258">Chuma</option>
+                  <option value="1364">Chuquihuta</option><option value="1356">Ckochas</option><option value="1179">Cliza</option>
+                  <option value="1024">Cobija</option><option value="1156">Cocapata</option><option value="1019">Cochabamba</option>
+                  <option value="1311">Coipasa</option><option value="1190">Colcapirhua</option><option value="1361">Colcha K</option>
+                  <option value="1202">Collana</option><option value="1172">Colomi</option><option value="1417">Colpa Bélgica</option>
+                  <option value="1342">Colquechaca</option><option value="1203">Colquencha</option><option value="1231">Colquiri</option>
+                  <option value="1276">Comanche</option><option value="1381">Comarapa</option><option value="1236">Combaya</option>
+                  <option value="1407">Concepción</option><option value="1253">Copacabana</option><option value="1264">Coripata</option>
+                  <option value="1277">Coro Coro</option><option value="1265">Coroico</option><option value="1288">Corque</option>
+                  <option value="1359">Cotagaita</option><option value="1376">Cotoca</option><option value="1295">Cruz de Machacamarca</option>
+                  <option value="1408">Cuatro Cañadas</option><option value="1185">Cuchumuela</option><option value="1390">Cuevo</option>
+                  <option value="1139">Culpina</option><option value="1313">Curahuara de Carangas</option><option value="1208">Curva</option>
+                  <option value="1223">Desaguadero</option><option value="1022">El Alto</option><option value="1397">El Carmen Rivero Tórrez</option>
+                  <option value="1290">El Choro</option><option value="1401">El Puente (Santa Cruz)</option><option value="1439">El Puente (Tarija)</option>
+                  <option value="1325">El Sena</option><option value="1377">El Torno</option><option value="1420">El Trigal</option>
+                  <option value="1141">El Villar</option><option value="1434">Entre Ríos</option><option value="1167">Entre Ríos (Cochabamba)</option>
+                  <option value="1296">Escara</option><option value="1209">Escoma</option><option value="1297">Esmeralda</option>
+                  <option value="1319">Eucaliptus</option><option value="1121">Exaltación</option><option value="1413">Fernández Alonso</option>
+                  <option value="1328">Filadelfia</option><option value="1414">General Saavedra</option><option value="1237">Guanay</option>
+                  <option value="1224">Guaqui</option><option value="1119">Guayaramerín</option><option value="1391">Gutiérrez</option>
+                  <option value="1126">Huacareta</option><option value="1128">Huacaya</option><option value="1298">Huachacalla</option>
+                  <option value="1304">Huanuni</option><option value="1111">Huaracaje</option><option value="1269">Huarina</option>
+                  <option value="1270">Huatajata</option><option value="1303">Huayllamarca</option><option value="1210">Humanata</option>
+                  <option value="1232">Ichoca</option><option value="1148">Icla</option><option value="1132">Incahuasi</option>
+                  <option value="1157">Independencia</option><option value="1320">Ingavi</option><option value="1233">Inquisivi</option>
+                  <option value="1281">Irupana</option><option value="1198">Ixiamas</option><option value="1225">Jesús de Machaca</option>
+                  <option value="1282">La Asunta</option><option value="1378">La Guardia</option><option value="1021">La Paz</option>
+                  <option value="1301">La Rivera</option><option value="1392">Lagunillas</option><option value="1250">Laja</option>
+                  <option value="1140">Las Carreras</option><option value="1234">Licoma Pampa</option><option value="1365">Llallagua</option>
+                  <option value="1350">Llica</option><option value="1116">Loreto</option><option value="1245">Luribay</option>
+                  <option value="1305">Machacamarca</option><option value="1129">Macharetí</option><option value="1112">Magdalena</option>
+                  <option value="1393">Mairana</option><option value="1246">Malla</option><option value="1238">Mapiri</option>
+                  <option value="1262">Mecapaca</option><option value="1415">Mineros</option><option value="1183">Mizque</option>
+                  <option value="1211">Mocomoco</option><option value="1369">Mojinete</option><option value="1127">Monteagudo</option>
+                  <option value="1028">Montero</option><option value="1421">Moro Moro</option><option value="1158">Morochata</option>
+                  <option value="1278">Nazacara de Pacajes</option><option value="1322">Nueva Esperanza</option><option value="1343">Ocurí</option>
+                  <option value="1428">Okinawa</option><option value="1161">Omereque</option><option value="1023">Oruro</option>
+                  <option value="1431">Padcaya</option><option value="1142">Padilla</option><option value="1383">Pailón</option>
+                  <option value="1263">Palca</option><option value="1283">Palos Blancos</option><option value="1293">Pampa Aullagas</option>
+                  <option value="1394">Pampa Grande</option><option value="1221">Papel Pampa</option><option value="1292">Paria</option>
+                  <option value="1162">Pasorapa</option><option value="1204">Patacamaya</option><option value="1307">Pazña</option>
+                  <option value="1217">Pelechuco</option><option value="1344">Pocoata</option><option value="1168">Pocona</option>
+                  <option value="1169">Pojo</option><option value="1308">Poopó</option><option value="1337">Porco</option>
+                  <option value="1135">Poroma</option><option value="1379">Porongo</option><option value="1418">Portachuelo</option>
+                  <option value="1334">Porvenir</option><option value="1422">Postrervalle</option><option value="1025">Potosí</option>
+                  <option value="1149">Presto</option><option value="1423">Pucará</option><option value="1251">Pucarani</option>
+                  <option value="1212">Puerto Acosta</option><option value="1213">Puerto Carabuco</option><option value="1326">Puerto Gonzalo Moreno</option>
+                  <option value="1252">Puerto Pérez</option><option value="1398">Puerto Quijarro</option><option value="1329">Puerto Rico</option>
+                  <option value="1113">Puerto Siles</option><option value="1399">Puerto Suárez</option><option value="1170">Puerto Villarroel</option>
+                  <option value="1357">Puna</option><option value="1186">Punata</option><option value="1239">Quiabaya</option>
+                  <option value="1286">Quillacas</option><option value="1191">Quillacollo</option><option value="1235">Quime</option>
+                  <option value="1395">Quirusillas</option><option value="1345">Ravelo</option><option value="1106">Reyes</option>
+                  <option value="1120">Riberalta</option><option value="1384">Roboré</option><option value="1107">Rurrenabaque</option>
+                  <option value="1312">Sabaya</option><option value="1173">Sacaba</option><option value="1177">Sacabamba</option>
+                  <option value="1336">Sacaca</option><option value="1382">Saipina</option><option value="1294">Salinas de Garci Mendoza</option>
+                  <option value="1396">Samaipata</option><option value="1352">San Agustín</option><option value="1117">San Andrés</option>
+                  <option value="1226">San Andrés de Machaca</option><option value="1370">San Antonio de Esmoruco</option>
+                  <option value="1409">San Antonio de Lomerío</option><option value="1187">San Benito</option><option value="1108">San Borja</option>
+                  <option value="1199">San Buenaventura</option><option value="1404">San Carlos</option><option value="1118">San Ignacio de Moxos</option>
+                  <option value="1425">San Ignacio de Velasco</option><option value="1104">San Javier (Beni)</option><option value="1410">San Javier (Santa Cruz)</option>
+                  <option value="1114">San Joaquín</option><option value="1385">San José de Chiquitos</option><option value="1405">San Juan de Yapacaní</option>
+                  <option value="1411">San Julián</option><option value="1440">San Lorenzo</option><option value="1327">San Lorenzo (Pando)</option>
+                  <option value="1133">San Lucas</option><option value="1380">San Matías</option><option value="1426">San Miguel de Velasco</option>
+                  <option value="1371">San Pablo de Lípez</option><option value="1330">San Pedro (Pando)</option><option value="1416">San Pedro (Santa Cruz)</option>
+                  <option value="1340">San Pedro de Buena Vista</option><option value="1222">San Pedro de Curahuara</option>
+                  <option value="1346">San Pedro de Macha</option><option value="1362">San Pedro de Quemes</option><option value="1254">San Pedro de Tiquina</option>
+                  <option value="1427">San Rafael de Velasco</option><option value="1115">San Ramón (Beni)</option><option value="1412">San Ramón (Santa Cruz)</option>
+                  <option value="1122">Santa Ana del Yacuma</option><option value="1026">Santa Cruz de la Sierra</option><option value="1109">Santa Rosa</option>
+                  <option value="1321">Santa Rosa del Abuná</option><option value="1419">Santa Rosa del Sara</option><option value="1316">Santiago de Huari</option>
+                  <option value="1271">Santiago de Huata</option><option value="1219">Santiago de Machaca</option><option value="1164">Santiváñez</option>
+                  <option value="1323">Santos Mercado</option><option value="1247">Sapahaqui</option><option value="1196">Shinahota</option>
+                  <option value="1205">Sica Sica</option><option value="1165">Sicaya</option><option value="1192">Sipe Sipe</option>
+                  <option value="1143">Sopachuy</option><option value="1240">Sorata</option><option value="1020">Sucre</option>
+                  <option value="1188">Tacachi</option><option value="1241">Tacacoma</option><option value="1349">Tacobamba</option>
+                  <option value="1155">Tacopaya</option><option value="1351">Tahua</option><option value="1195">Tapacarí</option>
+                  <option value="1146">Tarabuco</option><option value="1227">Taraco</option><option value="1178">Tarata</option>
+                  <option value="1027">Tarija</option><option value="1124">Tarvita</option><option value="1242">Teoponte</option>
+                  <option value="1228">Tiahuanacu</option><option value="1373">Tinguipaya</option><option value="1243">Tipuani</option>
+                  <option value="1193">Tiquipaya</option><option value="1197">Tiraque</option><option value="1255">Tito Yupanqui</option>
+                  <option value="1180">Toco</option><option value="1302">Todos Santos</option><option value="1181">Tolata</option>
+                  <option value="1315">Toledo</option><option value="1338">Tomave</option><option value="1144">Tomina</option>
+                  <option value="1341">Toro Toro</option><option value="1171">Totora (Cochabamba)</option><option value="1309">Totora (Oruro)</option>
+                  <option value="1018">Trinidad</option><option value="1368">Tupiza</option><option value="1314">Turco</option>
+                  <option value="1206">Umala</option><option value="1366">Uncía</option><option value="1432">Uriondo</option>
+                  <option value="1374">Urmiri</option><option value="1402">Urubichá</option><option value="1339">Uyuni</option>
+                  <option value="1153">Vacas</option><option value="1424">Vallegrande</option><option value="1229">Viacha</option>
+                  <option value="1184">Vila Vila</option><option value="1145">Villa Alcalá</option><option value="1134">Villa Charcas</option>
+                  <option value="1150">Villa Mojocoya</option><option value="1324">Villa Nueva</option><option value="1189">Villa Rivero</option>
+                  <option value="1125">Villa Serrano</option><option value="1174">Villa Tunari</option><option value="1130">Villa Vaca Guzmán</option>
+                  <option value="1151">Villa Zudáñez</option><option value="1437">Villamontes</option><option value="1358">Villazón</option>
+                  <option value="1194">Vinto</option><option value="1360">Vitichi</option><option value="1279">Waldo Ballivián</option>
+                  <option value="1429">Warnes</option><option value="1248">Yaco</option><option value="1438">Yacuiba</option>
+                  <option value="1147">Yamparáez</option><option value="1284">Yanacachi</option><option value="1406">Yapacaní</option>
+                  <option value="1375">Yocalla</option><option value="1137">Yotala</option><option value="1433">Yunchará</option>
+                  <option value="1299">Yunguyo del Litoral</option>
+                </select>
+              </div>
+              <div class="field"><label>Zona:</label><input type="text" maxlength="50"></div>
+
+              <div class="field full">
+                <label>Ubicación GPS domicilio:</label>
+                <span style="flex:1;">
+                  Latitud: <span class="valor" id="gps-lat">----</span> &nbsp;&nbsp;&nbsp;
+                  Longitud: <span class="valor" id="gps-lon">----</span> &nbsp;&nbsp;
+                  <button type="button" class="btn-mini" onclick="abrirUbicacion()">Configurar</button>
+                </span>
+              </div>
+
+              <div class="field"><label>Profesión u oficio:</label><input type="text" maxlength="100"></div>
+              <div class="field"><label>Matrícula profesional:</label><input type="text" maxlength="30"></div>
+
+              <div class="field">
+                <label>¿Vivienda propia?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="vivienda" value="S"> SI</label>
+                  <label><input type="radio" name="vivienda" value="N"> NO</label>
+                  <label><input type="radio" name="vivienda" value="-1"> Desconocido</label>
+                </span>
+              </div>
+              <div class="field">
+                <label>¿Vehículo propio?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="vehiculo" value="S"> SI</label>
+                  <label><input type="radio" name="vehiculo" value="N"> NO</label>
+                  <label><input type="radio" name="vehiculo" value="-1"> Desconocido</label>
+                </span>
+              </div>
+
+              <div class="field full"><label>Correo:</label><input type="text" maxlength="100"></div>
+
+              <div class="field">
+                <label>Tipo de sangre:</label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>A</option><option>B</option><option>AB</option><option>O</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Factor:</label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Positivo</option><option>Negativo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Cónyuge ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Cónyuge</div>
+          <div class="sub-body">
+            <div class="field-grid cols-3">
+              <div class="field"><label>Cónyuge:</label><input type="text" maxlength="100"></div>
+              <div class="field"><label>Lugar de trabajo:</label><input type="text" maxlength="100"></div>
+              <div class="field"><label>Fecha de nacimiento:</label><input type="date"></div>
+              <div class="field"><label>Teléfono:</label><input type="text" maxlength="50"></div>
+              <div class="field"><label>Documento de identidad:</label><input type="text" maxlength="20"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Contacto de emergencia ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Contacto de emergencia</div>
+          <div class="sub-body">
+            <div class="field-grid cols-3">
+              <div class="field"><label>Nombre:</label><input type="text" maxlength="100"></div>
+              <div class="field"><label>Teléfono:</label><input type="text" maxlength="20"></div>
+              <div class="field"><label>Relación:</label><input type="text"></div>
+              <div class="field full"><label>Dirección:</label><input type="text"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Detalle de garante ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Detalle de garante</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('garantes')"><span class="plus">+</span> Agregar garante</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Nombre</th><th>Documento de identidad</th><th>Teléfono(s)</th>
+                  <th>Dirección</th><th>Fecha de nacimiento</th><th>Lugar de nacimiento</th><th>Estado civil</th>
+                </tr></thead>
+                <tbody id="garantes">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar garante" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="text" maxlength="20"></td>
+                    <td><input type="text" maxlength="50"></td>
+                    <td><input type="text" maxlength="200"></td>
+                    <td><input type="date"></td>
+                    <td><input type="text" maxlength="200"></td>
+                    <td><select>
+                      <option value="">&lt;SELECCIONE&gt;</option>
+                      <option>Soltero(a)</option><option>Casado(a)</option><option>Divorciado(a)</option>
+                      <option>Viudo(a)</option><option>Separado(a)</option><option>Unión libre</option>
+                    </select></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Detalle de hijos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Detalle de hijos</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('hijos')"><span class="plus">+</span> Agregar hijo</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Nombre</th><th>Institución educativa</th>
+                  <th>Fecha de nacimiento</th><th>Género</th>
+                </tr></thead>
+                <tbody id="hijos">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar hijo" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="date"></td>
+                    <td><select><option>Masculino</option><option>Femenino</option></select></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           3. INFORMACIÓN LABORAL
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> INFORMACIÓN LABORAL <span class="req">(*)</span></div>
+
+        <!-- ---------- Datos laborales básicos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Datos laborales básicos <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field"><label>Cod. colaborador: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+              <div class="field"><label>Primer fecha de ingreso:</label><span class="valor">----</span></div>
+              <!-- Estas tres fechas van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fec. ingreso: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso vacaciones: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso antigüedad vacaciones: <span class="req">(*)</span></label><input type="date"></div>
+              </div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fec. ingreso caja salud: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Fec. ingreso para bono de antigüedad: <span class="req">(*)</span></label><input type="date"></div>
+                <div class="field"><label>Días de antigüedad adicional: <span class="req">(*)</span></label><input type="text" maxlength="5"></div>
+              </div>
+              <div class="field full lbl-lg">
+                <label>Motivo de movimiento de ingreso: <span class="req">(*)</span></label>
+                <select style="max-width:220px;">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>NO ESPECIFICADO</option><option>Renuncia 110</option>
+                </select>
+              </div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>Modalidad de trabajo: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>No especificado</option><option>Presencial</option>
+                    <option>Remoto</option><option>Semipresencial</option>
+                  </select>
+                </div>
+                <div class="field"><label>Teléfono fijo:</label><input type="text" maxlength="50"></div>
+                <div class="field"><label>Teléfono móvil:</label><input type="text" maxlength="20"></div>
+              </div>
+              <div class="field full"><label>Correo: <span class="req">(*)</span></label><input type="text" maxlength="100" style="max-width:320px;"></div>
+              <div class="field full"><label>Dirección:</label><input type="text" maxlength="200"></div>
+              <div class="field"><label>Fecha egreso:</label><span class="valor">----</span></div>
+              <div class="field"><label>Estado:</label><span class="valor">Activo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Organización ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Organización <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field"><label>Gerencia:</label><span class="valor">----</span></div>
+              <div class="field"><label>Jefatura:</label><span class="valor">----</span></div>
+              <div class="field full">
+                <label>Unidad de negocio: <span class="req">(*)</span></label>
+                <!-- revisar: lista propia de cada empresa; se dejan las del HTML de referencia. -->
+                <select style="max-width:280px;">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Administración y Finanzas</option><option>Administración y Servicios</option>
+                  <option>Almacén Cochabamba</option><option>Almacén La Paz</option>
+                  <option>Almacén Nacional</option><option>Almacén Santa Cruz</option>
+                  <option>Archivo Cochabamba</option><option>Archivo Inhouse</option>
+                  <option>Archivo La Paz</option><option>Archivo Nacional</option>
+                  <option>Archivo Santa Cruz</option><option>Calidad</option>
+                  <option>Finanzas y Contabilidad</option><option>Gerencia General</option>
+                  <option>Gestión Humana</option><option>Negocios</option><option>Proyectos</option>
+                  <option>Sistemas y TI</option><option>Slotting e Inventarios</option>
+                  <option>Transporte y Distribución</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>División: <span class="req">(*)</span></label>
+                <select><option value="">&lt;SELECCIONE&gt;</option><option>Sin definir</option></select>
+              </div>
+              <div class="field"><label>Regional:</label><span class="valor">----</span></div>
+              <div class="field"><label>Sucursal:</label><span class="valor">----</span></div>
+              <div class="field"><label>Oficina:</label><span class="valor">----</span></div>
+              <div class="field"><label>Cargo:</label><span class="valor">----</span></div>
+              <div class="field lbl-lg">
+                <label>Sucursal ministerio: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Ministerio Cochabamba</option><option>Ministerio La Paz</option>
+                  <option>Ministerio Santa Cruz</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>¿Está sindicalizado?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="sindicalizado" value="S"> SI</label>
+                  <label><input type="radio" name="sindicalizado" value="N" checked> NO</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Contrato ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Contrato <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field">
+                <label>Clasificación laboral: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>No especificado</option>
+                  <option>Ocupaciones de dirección en la administración pública y empresas</option>
+                  <option>Ocupaciones de profesionales científicos e intelectuales</option>
+                  <option>Ocupaciones de técnicos y profesionales de apoyo</option>
+                  <option>Empleados de oficina</option>
+                  <option>Trabajadores de los servicios y vendedores del comercio</option>
+                  <option>Productores y trabajadores en la agricultura, pecuaria, agropecuaria y pesca</option>
+                  <option>Trabajadores de la industria extractiva, construcción, industria manufacturera y otros oficios</option>
+                  <option>Operadores de instalaciones y maquinarias</option>
+                  <option>Trabajadores no calificados</option>
+                  <option>Fuerzas armadas</option>
+                </select>
+              </div>
+              <div class="field"><label>Número de contrato:</label><input type="text"></div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>Modalidad de contrato: <span class="req">(*)</span></label>
+                  <select>
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>A plazo fijo</option><option>Condicional o eventual</option>
+                    <option>Por realización de obra o servicio</option><option>Por temporada</option>
+                    <option>Tiempo indefinido</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Tipo de contrato: <span class="req">(*)</span></label>
+                  <select><option value="">&lt;SELECCIONE&gt;</option><option>Escrito</option><option>Verbal</option></select>
+                </div>
+                <div class="field"><label>¿Quién autorizó la contratación?</label><input type="text"></div>
+              </div>
+              <div class="field full start"><label>Motivo de contratación:</label><textarea rows="2" maxlength="100"></textarea></div>
+              <!-- Estas tres van juntas en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Fecha de finalización:</label><input type="date" disabled></div>
+                <div class="field"><label>Fecha de ratificación:</label><input type="date"></div>
+                <div class="field"><label>Fecha de última renovación de contrato:</label><input type="date"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Declaración de herederos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Declaración de herederos</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('herederos')"><span class="plus">+</span> Agregar heredero</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Nombre</th><th>Fecha de nacimiento</th><th>Relación</th>
+                  <th>Género</th><th>Número de documento</th><th>Tipo de documento</th><th>Participación porcentual</th>
+                </tr></thead>
+                <tbody id="herederos">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar heredero" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="110"></td>
+                    <td><input type="date"></td>
+                    <td><input type="text" maxlength="50"></td>
+                    <td><select><option>Masculino</option><option>Femenino</option></select></td>
+                    <td><input type="text" maxlength="20"></td>
+                    <td><select>
+                      <option>Carnet de identidad</option><option>Pasaporte</option><option>RUN</option>
+                      <option>Carnet de extranjero</option><option>Otro</option><option>Certificado de nacimiento</option>
+                    </select></td>
+                    <td><input type="text" maxlength="5"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Remuneración ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Remuneración <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field"><label>Modo haber básico:</label><span class="valor">Monto mensual</span></div>
+              <div class="field"><label>Haber básico:</label><span class="valor">3,651.00</span></div>
+              <div class="field">
+                <label>Modo quincena:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="modoquincena" value="1" checked onchange="toggleModoQuincena('Porcentaje')"> Porcentaje</label>
+                  <label><input type="radio" name="modoquincena" value="2" onchange="toggleModoQuincena('Monto')"> Monto</label>
+                </span>
+              </div>
+              <!-- La etiqueta sigue al modo de quincena elegido (arranca en Porcentaje). -->
+              <div class="field"><label><span id="lbl-monto-quincena">Porcentaje</span>: <span class="req">(*)</span></label><input type="text" maxlength="18"></div>
+
+              <!-- Estos tres van juntos en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field">
+                  <label>¿Sujeto a bono de antigüedad?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="bonoant" value="S" checked> SI</label>
+                    <label><input type="radio" name="bonoant" value="N"> NO</label>
+                  </span>
+                </div>
+                <div class="field">
+                  <label>¿Aguinaldo/prima desde el primer mes?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="aguimes" value="S" checked> SI</label>
+                    <label><input type="radio" name="aguimes" value="N"> NO</label>
+                  </span>
+                </div>
+                <div class="field">
+                  <label>¿Aplica aguinaldo de navidad?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="agui1" value="S" checked> SI</label>
+                    <label><input type="radio" name="agui1" value="N"> NO</label>
+                  </span>
+                </div>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Aplica 2do aguinaldo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="agui2" value="S" checked> SI</label>
+                  <label><input type="radio" name="agui2" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Aplica retroactivo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="retro" value="S" checked onchange="toggleRetroBono(true)"> SI</label>
+                  <label><input type="radio" name="retro" value="N" onchange="toggleRetroBono(false)"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Aplica retroactivo bono de antigüedad?</label>
+                <!-- Arranca bloqueado en SI porque "¿Aplica retroactivo?" viene en SI. -->
+                <span class="radio-row">
+                  <label><input type="radio" name="retrobono" value="S" checked disabled> SI</label>
+                  <label><input type="radio" name="retrobono" value="N" disabled> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Aplica prima?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="prima" value="S" checked> SI</label>
+                  <label><input type="radio" name="prima" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Enviar boleta por correo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="enviarboleta" value="S" checked> SI</label>
+                  <label><input type="radio" name="enviarboleta" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Excluible de planilla?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="excluible" value="S"> SI</label>
+                  <label><input type="radio" name="excluible" value="N" checked> NO</label>
+                </span>
+              </div>
+
+              <div class="field full start lbl-xl">
+                <label>Forma de cálculo de indemnización para quinquenios:</label>
+                <span class="radio-col">
+                  <label><input type="radio" name="calcind" value="1" checked> Desde el último quinquenio</label>
+                  <label><input type="radio" name="calcind" value="2"> Desde el último pago a cuenta de indemnización</label>
+                  <label><input type="radio" name="calcind" value="3"> Desde el último quinquenio – ignorando retiros parciales</label>
+                  <label><input type="radio" name="calcind" value="4"> Desde la fecha de ingreso</label>
+                  <label><input type="radio" name="calcind" value="5"> Selección</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>Último quinquenio consolidado: <span class="req">(*)</span></label>
+                <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
+              </div>
+
+              <div class="field full start lbl-xl">
+                <label>Forma de cálculo de indemnización para retiros:</label>
+                <span class="radio-col">
+                  <label><input type="radio" name="calcindret" value="1" checked> Desde el último quinquenio</label>
+                  <label><input type="radio" name="calcindret" value="2"> Desde el último pago a cuenta de indemnización</label>
+                  <label><input type="radio" name="calcindret" value="4"> Desde el último quinquenio – ignorando retiros parciales</label>
+                  <label><input type="radio" name="calcindret" value="3"> Desde la fecha de ingreso</label>
+                  <label><input type="radio" name="calcindret" value="5"> Selección</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>Último quinquenio consolidado para retiros: <span class="req">(*)</span></label>
+                <select><option value="">&lt;SELECCIONE&gt;</option><option>Fecha de ingreso</option></select>
+              </div>
+
+              <div class="field lbl-lg">
+                <label>¿Aplica aportes patronales?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aportepat" value="S" checked> SI</label>
+                  <label><input type="radio" name="aportepat" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Incluir en subsidio de frontera si está habilitado para la oficina?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="subfrontera" value="S"> SI</label>
+                  <label><input type="radio" name="subfrontera" value="N" checked> NO</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Bonos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Bonos</div>
+          <div class="sub-body">
+            <div class="field"><label>Bonos asignables:</label>
+              <span class="radio-col"><label><input type="checkbox"> Bono por Objetivos</label></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Contabilidad ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Contabilidad <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field"><label>Código contable: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+              <div class="field lbl-lg">
+                <label>Tipo de mano de obra: <span class="req">(*)</span></label>
+                <select><option value="">&lt;SELECCIONE&gt;</option><option>Administrativo</option><option>Operativo</option></select>
+              </div>
+            </div>
+            <div style="margin-top:8px; max-width:420px;">
+              <table class="tabla-rep">
+                <thead><tr><th class="col-x"></th><th>Centro de costo</th><th style="text-align:right;">Porcentaje</th></tr></thead>
+                <tbody id="centros">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar" onclick="quitarFila(this)">✖</span></td>
+                    <td class="solo-lectura">----</td>
+                    <td style="text-align:right;"><input type="text" maxlength="6" style="text-align:right;"></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="field" style="margin-top:5px; max-width:420px;">
+                <label>Agregar centro: <span class="req">(*)</span></label>
+                <!-- revisar: la lista real tiene ~200 centros de costo propios de la empresa. -->
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>256A0C9905</option><option>256D0R9905</option><option>256OAB32E2</option>
+                  <option>CDF ALM SC COMUN</option><option>CDF ARCHIVO SC COMÚN</option>
+                  <option>GA ADMINISTRACIÓN</option><option>GA CONTABILIDAD</option><option>GA RRHH</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- AFP ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> AFP <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <!-- Ojo: "¿Aplica AFP? = NO" NO apaga todo el bloque; "Sucursal para la AFP"
+                 y "Tipo de asegurado" siguen activos. Ver refrescarAfp(). -->
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label>¿Aplica AFP?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aplicaafp" value="S" checked onchange="refrescarAfp()"> SI</label>
+                  <label><input type="radio" name="aplicaafp" value="N" onchange="refrescarAfp()"> NO</label>
+                </span>
+              </div>
+              <div class="field"><label>NUA AFP:</label><input type="text" maxlength="30" id="nua-afp"></div>
+              <div class="field">
+                <label>Adm. pensiones: <span class="req" id="adm-pensiones-req">(*)</span></label>
+                <select id="adm-pensiones">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>En proceso</option><option>Gestora pública</option>
+                  <option>Otra</option><option>Previsión</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>¿Está jubilado?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="jubilado" value="S" onchange="refrescarAfp()"> SI</label>
+                  <label><input type="radio" name="jubilado" value="N" checked onchange="refrescarAfp()"> NO</label>
+                </span>
+              </div>
+              <!-- Estos dos arrancan inactivos porque "¿Está jubilado?" viene en NO. -->
+              <div class="field"><label>Fecha de jubilación:</label><input type="date" id="fecha-jubilacion" disabled></div>
+              <div class="field">
+                <label>¿Aporta a la AFP?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aportaafp" value="S" checked disabled> SI</label>
+                  <label><input type="radio" name="aportaafp" value="N" disabled> NO</label>
+                </span>
+              </div>
+              <div class="field">
+                <label>Sucursal para la AFP: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Cochabamba</option><option>La Paz</option><option>ORURO</option><option>Santa Cruz</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Tipo de asegurado: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Consultor de línea</option><option>Estacional</option>
+                  <option>Minero</option><option>Normal</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Caja de salud ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Caja de salud</div>
+          <div class="sub-body">
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label>¿Aplica caja de salud?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aplicacaja" value="S" checked onchange="toggleCajaSalud(true)"> SI</label>
+                  <label><input type="radio" name="aplicacaja" value="N" onchange="toggleCajaSalud(false)"> NO</label>
+                </span>
+              </div>
+              <div class="field">
+                <label>Caja de salud: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Caja Nacional de Salud (C.N.S.).</option>
+                  <option>Caja Petrolera de Salud (C.P.S.).</option>
+                  <option>Caja de Salud de Caminos.</option>
+                  <option>Caja Bancaria Estatal de Salud (C.B.E.S.).</option>
+                  <option>Caja de Salud de la Banca Privada (C.S.B.P.).</option>
+                  <option>Caja de Salud Cordes.</option>
+                  <option>Seguro Social Universitario (S.I.S.S.U.B.).</option>
+                  <option>Corporación del Seguro Social Militar (COOSMIL).</option>
+                  <option>Seguro Integral de Salud (SINEC).</option>
+                  <option>Seguro delegado.</option>
+                </select>
+              </div>
+              <div class="field"><label>Nº asegurado caja:</label><input type="text" maxlength="30" id="nro-asegurado-caja"></div>
+              <div class="field"><label>Lugar de expedición:</label><input type="text"></div>
+              <div class="field"><label>Fecha de expedición:</label><input type="date"></div>
+              <div class="field">
+                <label>Sucursal para la caja: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Cochabamba</option><option>La Paz</option><option>ORURO</option><option>Santa Cruz</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- RC-IVA ---------- -->
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> RC-IVA <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid cols-3">
+              <div class="field">
+                <label>¿Aplica planilla tributaria?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="plantrib" value="S" checked onchange="toggleRcIva(true)"> SI</label>
+                  <label><input type="radio" name="plantrib" value="N" onchange="toggleRcIva(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Ocupa dos columnas para que la fila siguiente arranque limpia. -->
+              <div class="field" style="grid-column: span 2;">
+                <label>¿Sueldo neto CERO en planilla tributaria?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="netocero" value="S"> SI</label>
+                  <label><input type="radio" name="netocero" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field"><label>Código dependiente RC-IVA:</label><input type="text" maxlength="30"></div>
+              <div class="field"><label>Saldo RC-IVA inicial: <span class="req" id="saldo-rciva-req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field">
+                <label>Período saldo RC-IVA inicial: <span class="req" id="periodo-rciva-req">(*)</span></label>
+                <span style="flex:1; display:flex; gap:6px; min-width:0;">
+                  <select style="max-width:110px;">
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+                    <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+                    <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+                  </select>
+                  <select style="max-width:80px;">
+                    <option value="">&lt;SELECCIONE&gt;</option>
+                    <option>2023</option><option>2024</option><option>2025</option><option>2026</option>
+                  </select>
+                </span>
+              </div>
+              <div class="field"><label>Mínimo no imponible personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
+              <div class="field"><label>13% 1 SMN personalizado:</label><input type="text" maxlength="16" style="text-align:right;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Pagos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Pagos <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field">
+                <label>Forma de pago: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Banco</option><option>Cheque</option><option>Efectivo</option><option>Giro</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Tipo de cuenta: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Caja de ahorro</option><option>Cuenta corriente</option>
+                </select>
+              </div>
+              <div class="field"><label>Cuenta bancaria: <span class="req">(*)</span></label><input type="text" maxlength="30"></div>
+              <div class="field">
+                <label>Banco: <span class="req">(*)</span></label>
+                <!-- Lista completa del Salar (bancos, mutuales y cooperativas), con sus value. -->
+                <select id="ddlBanco">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option value="48">Banco Do Brasil</option>
+                  <option value="36">BISA</option>
+                  <option value="76">Cooperativa Catedral</option>
+                  <option value="72">Cooperativa Comarapa</option>
+                  <option value="75">Cooperativa Educadores Gran Chaco</option>
+                  <option value="74">Cooperativa El Chorolque</option>
+                  <option value="62">Cooperativa Fátima</option>
+                  <option value="65">Cooperativa Hospicio</option>
+                  <option value="68">Cooperativa Incahuassi</option>
+                  <option value="60">Cooperativa Jesús Nazareno</option>
+                  <option value="64">Cooperativa Loyola</option>
+                  <option value="67">Cooperativa PIO X</option>
+                  <option value="69">Cooperativa Quillacollo</option>
+                  <option value="66">Cooperativa San Antonio</option>
+                  <option value="78">Cooperativa San Joaquín</option>
+                  <option value="70">Cooperativa San Jose de Punata</option>
+                  <option value="61">Cooperativa San Martin</option>
+                  <option value="73">Cooperativa San Mateo</option>
+                  <option value="63">Cooperativa San Pedro</option>
+                  <option value="79">Cooperativa Trapetrol Oriente</option>
+                  <option value="71">Cooperativa Trinidad</option>
+                  <option value="37">Crédito</option>
+                  <option value="44">Ecofuturo</option>
+                  <option value="38">Económico</option>
+                  <option value="43" selected>Fassil</option>
+                  <option value="45">FIE</option>
+                  <option value="81">Fondo Financiero de la Comunidad</option>
+                  <option value="47">Fortaleza</option>
+                  <option value="39">Ganadero</option>
+                  <option value="40">Los Andes</option>
+                  <option value="77">Magisterio Rural</option>
+                  <option value="34">Mercantil Santa Cruz</option>
+                  <option value="57">Mutual del Pueblo</option>
+                  <option value="52">Mutual el Progreso</option>
+                  <option value="50">Mutual Guapay</option>
+                  <option value="53">Mutual La Plata</option>
+                  <option value="49">Mutual la Primera</option>
+                  <option value="51">Mutual la Promotora</option>
+                  <option value="55">Mutual la Tarija</option>
+                  <option value="59">Mutual Manutata</option>
+                  <option value="56">Mutual Paititi</option>
+                  <option value="58">Mutual Pando</option>
+                  <option value="54">Mutual Potosí</option>
+                  <option value="42">Nacional</option>
+                  <option value="80">Nacional Financiera Boliviana SAN</option>
+                  <option value="46">Prodem</option>
+                  <option value="41">Sol</option>
+                  <option value="35">Unión</option>
+                </select>
+              </div>
+              <div class="field lbl-lg">
+                <label>Sucursal cuenta bancaria: <span class="req">(*)</span></label>
+                <select>
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Beni</option><option>Chuquisaca</option><option>Cochabamba</option>
+                  <option>La Paz</option><option>Oruro</option><option>Pando</option>
+                  <option>Potosí</option><option>Santa Cruz</option><option>Tarija</option>
+                </select>
+              </div>
+              <div class="field lbl-lg"><label>Código de cliente bancario:</label><input type="text" maxlength="20"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Discapacidad ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Discapacidad</div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field lbl-lg">
+                <label>¿Es persona con discapacidad?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="discap" value="S"> SI</label>
+                  <label><input type="radio" name="discap" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Es tutor de persona con discapacidad?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="tutordiscap" value="S"> SI</label>
+                  <label><input type="radio" name="tutordiscap" value="N" checked> NO</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Uniforme ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Uniforme</div>
+          <div class="sub-body">
+            <div class="field-grid cols-3">
+              <div class="field"><label>Talla camisa:</label><input type="text" maxlength="10"></div>
+              <div class="field"><label>Talla pantalón:</label><input type="text" maxlength="10"></div>
+              <div class="field"><label>Talla zapato:</label><input type="text" maxlength="10"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Vacaciones y permisos ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Vacaciones y permisos</div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field full lbl-xl">
+                <label>¿Se permite solicitar vacaciones sin cumplir un año?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="vac1anio" value="S"> SI</label>
+                  <label><input type="radio" name="vac1anio" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Requiere aprobación de permisos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aprobperm" value="S" checked> SI</label>
+                  <label><input type="radio" name="aprobperm" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Requiere aprobación de vacaciones?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="aprobvac" value="S" checked> SI</label>
+                  <label><input type="radio" name="aprobvac" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Incluido en la notificación global de vacaciones por comenzar?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="notifvac" value="S"> SI</label>
+                  <label><input type="radio" name="notifvac" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Se cuentan los feriados como días de vacación tomada?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ferivac" value="S"> SI</label>
+                  <label><input type="radio" name="ferivac" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Recibe bono de vacaciones si está habilitado?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="bonovac" value="S" checked> SI</label>
+                  <label><input type="radio" name="bonovac" value="N"> NO</label>
+                </span>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div class="hint" style="margin-bottom:4px;">Valor de vacaciones programadas por día:</div>
+              <div class="tabla-wrap" style="max-width:520px;">
+                <table class="tabla-rep tabla-dias">
+                  <thead><tr><th>lunes</th><th>martes</th><th>miércoles</th><th>jueves</th><th>viernes</th><th>sábado</th><th>domingo</th></tr></thead>
+                  <tbody><tr>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td>
+                  </tr></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div class="hint" style="margin-bottom:4px;">Valor de vacaciones NO programadas por día:</div>
+              <div class="tabla-wrap" style="max-width:520px;">
+                <table class="tabla-rep tabla-dias">
+                  <thead><tr><th>lunes</th><th>martes</th><th>miércoles</th><th>jueves</th><th>viernes</th><th>sábado</th><th>domingo</th></tr></thead>
+                  <tbody><tr>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td><td><input type="text" maxlength="7"></td>
+                    <td><input type="text" maxlength="7"></td>
+                  </tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Vacaciones adicionales ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Vacaciones adicionales</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('vacadic')"><span class="plus">+</span> Agregar vacación</button>
+            <div style="max-width:320px;">
+              <table class="tabla-rep">
+                <thead><tr><th class="col-x"></th><th style="text-align:right;">Días adicionales</th><th>Hasta la gestión</th></tr></thead>
+                <tbody id="vacadic">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar vacación" onclick="quitarFila(this)">✖</span></td>
+                    <td style="text-align:right;"><input type="text" maxlength="7" style="text-align:right;"></td>
+                    <td><select>
+                      <option>2024</option><option>2025</option><option>2026</option>
+                      <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                    </select></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Asistencias ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Asistencias <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <!-- Estos tres van juntos en una fila (subgrilla de 3 columnas). -->
+              <div class="field-grid cols-3 fila-3" style="grid-column: 1 / -1;">
+                <div class="field"><label>Código de asistencia: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+                <div class="field">
+                  <label>Días trabajados x mes:</label>
+                  <select><option>30</option><option>26</option><option>25</option></select>
+                </div>
+                <div class="field">
+                  <label>¿Controlar asistencia?</label>
+                  <span class="radio-row">
+                    <label><input type="radio" name="ctrlasis" value="S" checked> SI</label>
+                    <label><input type="radio" name="ctrlasis" value="N"> NO</label>
+                  </span>
+                </div>
+              </div>
+              <div class="field full lbl-xl">
+                <label>Modo de clasificación de horas extras: <span class="req">(*)</span></label>
+                <select style="max-width:220px;">
+                  <option value="">&lt;SELECCIONE&gt;</option>
+                  <option>Día de la semana</option><option>Día de descanso</option>
+                </select>
+              </div>
+              <div class="field lbl-lg">
+                <label>¿Aplica bono de horas extras?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="bonohe" value="S" onchange="toggleCalcHE(true)"> SI</label>
+                  <label><input type="radio" name="bonohe" value="N" checked onchange="toggleCalcHE(false)"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Aplica bono de horas extras NOCTURNAS?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="bonohen" value="S"> SI</label>
+                  <label><input type="radio" name="bonohen" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Horas de trabajo por mes para horas extras: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-lg"><label>Horas trabajo x día: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl">
+                <label>¿Aplica horas extras por convenio?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="heconvenio" value="S"> SI</label>
+                  <label><input type="radio" name="heconvenio" value="N" checked> NO</label>
+                </span>
+              </div>
+              <!-- Arranca bloqueado en NO porque "¿Aplica bono de horas extras?" viene en NO. -->
+              <div class="field full lbl-xl">
+                <label>¿Calcular horas extras en base al tiempo trabajado del período?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="hetiempo" value="S" disabled> SI</label>
+                  <label><input type="radio" name="hetiempo" value="N" checked disabled> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Aplica bono de recargo nocturno?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="recnoct" value="S"> SI</label>
+                  <label><input type="radio" name="recnoct" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Horas de trabajo por mes para recargo nocturno: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl"><label>Porcentaje de recargo nocturno: <span class="req">(*)</span></label><input type="text" maxlength="5" style="text-align:right;"></div>
+
+              <div class="field lbl-xl">
+                <label>¿Aplica descuentos por faltas?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="descfaltas" value="S"> SI</label>
+                  <label><input type="radio" name="descfaltas" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Aplica descuentos por atrasos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="descatrasos" value="S"> SI</label>
+                  <label><input type="radio" name="descatrasos" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Habilitar cálculo de atrasos por ausentismos intermedios?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ausint" value="S"> SI</label>
+                  <label><input type="radio" name="ausint" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-lg">
+                <label>¿Recibe dominicales?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="dominicales" value="S"> SI</label>
+                  <label><input type="radio" name="dominicales" value="N" checked> NO</label>
+                  <label><input type="radio" name="dominicales" value="P"> Sólo descontar perdidos</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Recibe domingos trabajados?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="domtrab" value="S" checked> SI</label>
+                  <label><input type="radio" name="domtrab" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Horas de trabajo en domingos trabajados: <span class="req">(*)</span></label><input type="text" maxlength="5" style="text-align:right;"></div>
+              <div class="field lbl-xl">
+                <label>¿Recibe feriados trabajados?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="feritrab" value="S"> SI</label>
+                  <label><input type="radio" name="feritrab" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Horas de trabajo en feriados trabajados: <span class="req">(*)</span></label><input type="text" maxlength="5" style="text-align:right;"></div>
+
+              <div class="field start lbl-xl">
+                <label>Comportamiento de tiempo de trabajo programado en domingo:</label>
+                <span class="radio-col">
+                  <label><input type="radio" name="compdom" value="1" checked> Nada especial</label>
+                  <label><input type="radio" name="compdom" value="2"> Horas extras de domingo</label>
+                  <label><input type="radio" name="compdom" value="3"> Horas extras de domingo si no hubo descanso en la semana</label>
+                </span>
+              </div>
+              <div class="field start lbl-xl">
+                <label>Comportamiento de tiempo de trabajo programado en feriado:</label>
+                <span class="radio-col">
+                  <label><input type="radio" name="compferi" value="1" checked> Nada especial</label>
+                  <label><input type="radio" name="compferi" value="2"> Horas trabajadas en feriado</label>
+                  <label><input type="radio" name="compferi" value="3"> Horas extras de feriado</label>
+                </span>
+              </div>
+
+              <div class="field lbl-xl"><label>Horas trabajo x día para planilla: <span class="req">(*)</span></label><input type="text" maxlength="5" style="text-align:right;"></div>
+              <div class="field lbl-lg">
+                <label>¿Comedor habilitado?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="comedor" value="S" checked> SI</label>
+                  <label><input type="radio" name="comedor" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-lg"><label>Código comedor: <span class="req">(*)</span></label><input type="text" maxlength="20"></div>
+
+              <div class="field full lbl-xl">
+                <label>¿Permitir marcaciones virtuales por la aplicación móvil?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="marcapp" value="S" onchange="toggleRestriccion(true)"> SI</label>
+                  <label><input type="radio" name="marcapp" value="N" checked onchange="toggleRestriccion(false)"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Permitir marcaciones virtuales por la web?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="marcweb" value="S"> SI</label>
+                  <label><input type="radio" name="marcweb" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Controlar ubicación de marcaciones virtuales?</label>
+                <span style="flex:1; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+                  <span class="radio-row">
+                    <label><input type="radio" name="ctrlubic" value="S" onchange="toggleUbicMarc(true)"> SI</label>
+                    <label><input type="radio" name="ctrlubic" value="N" checked onchange="toggleUbicMarc(false)"> NO</label>
+                  </span>
+                  <!-- Arrancan inactivos porque "¿Controlar ubicación…?" viene en NO. -->
+                  <span>Latitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;" id="ubic-lat" disabled></span>
+                  <span>Longitud: <input type="text" maxlength="19" style="width:130px; display:inline-block;" id="ubic-lon" disabled></span>
+                  <button type="button" class="btn-mini">Configurar</button>
+                </span>
+              </div>
+              <!-- Arranca bloqueado en NO porque las marcaciones por app vienen en NO. -->
+              <div class="field lbl-lg">
+                <label>¿Habilitar restricción?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="habrestr" value="S" disabled onchange="toggleTipoMarcacion(true)"> SI</label>
+                  <label><input type="radio" name="habrestr" value="N" checked disabled onchange="toggleTipoMarcacion(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo aparece con "¿Habilitar restricción? = SI" (arranca oculto). -->
+              <div class="field lbl-xl" id="tipo-marcacion" style="display:none;">
+                <label>Tipo de marcación virtual permitida</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="tipomarc" value="E"> Entrada</label>
+                  <label><input type="radio" name="tipomarc" value="S"> Salida</label>
+                </span>
+              </div>
+              <div class="field lbl-lg"><label>Identificador de celular:</label><input type="text" maxlength="50"></div>
+
+              <div class="field full lbl-xl">
+                <label>¿Notificar sobre las marcaciones de este colaborador?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="notifmarc" value="S"> SI</label>
+                  <label><input type="radio" name="notifmarc" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Acceso a información de asistencia?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="accesoasis" value="S" checked> SI</label>
+                  <label><input type="radio" name="accesoasis" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl">
+                <label>¿Permitir marcar fuera de horario?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="marcfuera" value="S" checked> SI</label>
+                  <label><input type="radio" name="marcfuera" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Utilizar saldo de compensaciones para disminuir atrasos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="compatrasos" value="S"> SI</label>
+                  <label><input type="radio" name="compatrasos" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Utilizar saldo de compensaciones para no contar horas extras?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="comphe" value="S"> SI</label>
+                  <label><input type="radio" name="comphe" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Generar horas extras al aprobar trabajos por compensar en domingo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="hecompdom" value="S"> SI</label>
+                  <label><input type="radio" name="hecompdom" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl">
+                <label>¿Personalizar coeficientes de horas extras?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="coefhe" value="S" onchange="toggleCoefHE(true)"> SI</label>
+                  <label><input type="radio" name="coefhe" value="N" checked onchange="toggleCoefHE(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo aparecen con "¿Personalizar coeficientes…? = SI" (arrancan ocultos). -->
+              <div class="field lbl-xl coef-he" style="display:none;"><label>Coeficiente horas extras domingos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl coef-he" style="display:none;"><label>Coeficiente horas extras feriados: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field full lbl-xl">
+                <label>¿Personalizar multiplicador de faltas?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="multfaltas" value="S" onchange="toggleMultFaltas(true)"> SI</label>
+                  <label><input type="radio" name="multfaltas" value="N" checked onchange="toggleMultFaltas(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo aparecen con "¿Personalizar multiplicador…? = SI" (arrancan ocultos). -->
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia regulares: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia domingos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas sin licencia feriados: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas con licencia: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field lbl-xl mult-faltas" style="display:none;"><label>Multiplicador para faltas por atrasos: <span class="req">(*)</span></label><input type="text" maxlength="10" style="text-align:right;"></div>
+              <div class="field full lbl-xl">
+                <label>¿Aplica multas por faltas acumuladas en el año?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="multas" value="S" checked> SI</label>
+                  <label><input type="radio" name="multas" value="N"> NO</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Familiares ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Familiares</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('familiares')"><span class="plus">+</span> Agregar familiar</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Empresa</th><th>Colaborador</th><th>Cargo</th>
+                  <th>Unidad</th><th>Estado</th><th>Relación</th>
+                </tr></thead>
+                <tbody id="familiares">
+                  <tr>
+                    <td class="col-x"><span class="quitar" title="Quitar familiar" onclick="quitarFila(this)">✖</span></td>
+                    <td><select><option value="">&lt;SELECCIONE&gt;</option><option>DEMO</option><option>OTRO DEMO</option></select></td>
+                    <td><input type="text"></td>
+                    <td class="solo-lectura">----</td>
+                    <td class="solo-lectura">----</td>
+                    <td class="solo-lectura" style="text-align:center;">----</td>
+                    <td><input type="text" maxlength="100"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           4. CURRICULUM
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> CURRICULUM</div>
+
+        <!-- ---------- Niveles de formación ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Niveles de formación</div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field full"><label>Bachillerato:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf435" value="S"> SI</label>
+                  <label><input type="radio" name="nf435" value="N"> NO</label>
+                  <label><input type="radio" name="nf435" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full"><label>Diplomado:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf514" value="S"> SI</label>
+                  <label><input type="radio" name="nf514" value="N"> NO</label>
+                  <label><input type="radio" name="nf514" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full"><label>Doctorado:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf439" value="S"> SI</label>
+                  <label><input type="radio" name="nf439" value="N"> NO</label>
+                  <label><input type="radio" name="nf439" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full lbl-lg"><label>Estudio Nivel secundaria:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf515" value="S"> SI</label>
+                  <label><input type="radio" name="nf515" value="N"> NO</label>
+                  <label><input type="radio" name="nf515" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full"><label>Licenciatura:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf437" value="S"> SI</label>
+                  <label><input type="radio" name="nf437" value="N"> NO</label>
+                  <label><input type="radio" name="nf437" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full"><label>Maestría:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf438" value="S"> SI</label>
+                  <label><input type="radio" name="nf438" value="N"> NO</label>
+                  <label><input type="radio" name="nf438" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+              <div class="field full"><label>Técnico superior:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="nf436" value="S"> SI</label>
+                  <label><input type="radio" name="nf436" value="N"> NO</label>
+                  <label><input type="radio" name="nf436" value="X"> No se tiene el dato</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Formación principal ---------- -->
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Formación principal</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('formprin')"><span class="plus">+</span> Agregar formación principal</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Nivel</th><th>Institución</th><th>Título</th>
+                  <th>Lugar</th><th>Fecha inicio</th><th>Fecha fin</th>
+                </tr></thead>
+                <tbody id="formprin">
+                  <tr>
+                    <td class="col-x"><span class="quitar" onclick="quitarFila(this)">✖</span></td>
+                    <td><select>
+                      <option value="">&lt;SELECCIONE&gt;</option>
+                      <option>Bachillerato</option><option>Diplomado</option><option>Doctorado</option>
+                      <option>Estudio Nivel secundaria</option><option>Licenciatura</option>
+                      <option>Maestría</option><option>Técnico superior</option>
+                    </select></td>
+                    <td><input type="text" maxlength="50"></td>
+                    <td><input type="text" maxlength="30"></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="date"></td>
+                    <td><input type="date"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Formación complementaria ---------- -->
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Formación complementaria</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('formcomp')"><span class="plus">+</span> Agregar formación complementaria</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Curso</th><th>Institución</th>
+                  <th>Inicio</th><th>Fin</th><th style="text-align:right;">Horas académicas</th>
+                </tr></thead>
+                <tbody id="formcomp">
+                  <tr>
+                    <td class="col-x"><span class="quitar" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="date"></td>
+                    <td><input type="date"></td>
+                    <td style="text-align:right;"><input type="text" maxlength="6" style="text-align:right;"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Referencias ---------- -->
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Referencias</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('referencias')"><span class="plus">+</span> Agregar referencia</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Nombre</th><th>Relación</th>
+                  <th>Teléfono</th><th>Ocupación</th><th>Fecha de nacimiento</th>
+                </tr></thead>
+                <tbody id="referencias">
+                  <tr>
+                    <td class="col-x"><span class="quitar" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="text" maxlength="50"></td>
+                    <td><input type="text" maxlength="30"></td>
+                    <td><input type="text" maxlength="50"></td>
+                    <td><input type="date"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Trabajos anteriores ---------- -->
+        <div class="subsection">
+          <div class="sub-header"><span class="tri">▸</span> Trabajos anteriores</div>
+          <div class="sub-body">
+            <button type="button" class="btn-add" onclick="agregarFila('trabajos')"><span class="plus">+</span> Agregar trabajo anterior</button>
+            <div class="tabla-wrap">
+              <table class="tabla-rep">
+                <thead><tr>
+                  <th class="col-x"></th><th>Empresa</th><th>Cargo</th><th>Inicio</th><th>Fin</th>
+                  <th>Responsabilidades</th><th>Motivo retiro</th><th>¿Certificado?</th>
+                </tr></thead>
+                <tbody id="trabajos">
+                  <tr>
+                    <td class="col-x"><span class="quitar" onclick="quitarFila(this)">✖</span></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><input type="date"></td>
+                    <td><input type="date"></td>
+                    <td><textarea rows="2" maxlength="200"></textarea></td>
+                    <td><input type="text" maxlength="100"></td>
+                    <td><span class="radio-row" style="white-space:nowrap;">
+                      <label><input type="radio" name="cert0" value="S"> SI</label>
+                      <label><input type="radio" name="cert0" value="N" checked> NO</label>
+                    </span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           5. INGRESO AL SISTEMA
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> INGRESO AL SISTEMA <span class="req">(*)</span></div>
+
+        <!-- ---------- Autenticación ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Autenticación <span class="req">(*)</span></div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field full lbl-lg">
+                <label>Modo de autenticación:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="modoauth" value="1" onchange="toggleAuth(true)"> Interno</label>
+                  <label><input type="radio" name="modoauth" value="4" checked onchange="toggleAuth(false)"> Azure</label>
+                </span>
+              </div>
+              <!-- Sólo en modo Azure (arranca visible porque Azure viene marcado). -->
+              <div class="field full auth-azure"><label>Cuenta ingreso: <span class="req">(*)</span></label><input type="text" maxlength="100"></div>
+
+              <div class="field auth-interno" style="display:none;"><label>Contraseña: <span class="req">(*)</span></label><input type="password" maxlength="20" autocomplete="off"></div>
+              <div class="field auth-interno lbl-lg" style="display:none;">
+                <label>Repetir contraseña: <span class="req">(*)</span></label>
+                <span style="flex:1; display:flex; gap:6px; align-items:center;">
+                  <input type="password" maxlength="20" autocomplete="off">
+                  <button type="button" class="btn-mini" style="white-space:nowrap;">Generar contraseña</button>
+                </span>
+              </div>
+
+              <div class="field full lbl-lg">
+                <label>¿Ingreso al sistema habilitado?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ingsist" value="S" checked> SI</label>
+                  <label><input type="radio" name="ingsist" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-lg">
+                <label>Acceso a otras empresas:</label>
+                <span class="radio-col"><label><input type="checkbox"> OTRO DEMO</label></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- Autogestión ---------- -->
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Autogestión</div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field full lbl-xl"><label>¿Permitir programar vacaciones?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag1" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag1" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar vacaciones efectivas?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag2" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag2" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir consultar estado de vacaciones?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag3" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag3" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar permisos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag4" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag4" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar horas extras?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag5" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag5" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar trabajos por compensar?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag6" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag6" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar anticipos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag7" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag7" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar ajustes de quincena?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag8" value="S"> SI</label>
+                  <label><input type="radio" name="ag8" value="N" checked> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir solicitar préstamos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag9" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag9" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir registrar objetivos?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag10" value="S" checked onchange="toggleAlcances(true)"> SI</label>
+                  <label><input type="radio" name="ag10" value="N" onchange="toggleAlcances(false)"> NO</label>
+                </span>
+              </div>
+              <!-- Sólo con "¿Permitir registrar objetivos? = SI" (arranca visible). -->
+              <div class="field full lbl-xl" id="alcances-habilitados">
+                <label>Alcances habilitados</label>
+                <span class="radio-row">
+                  <label><input type="checkbox" name="alcance" value="I" checked disabled> Individual</label>
+                  <label><input type="checkbox" name="alcance" value="U"> Unidad organizativa</label>
+                  <label><input type="checkbox" name="alcance" value="O"> Organización</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir registrar retroalimentación?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag11" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag11" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>¿Permitir registrar planes de desarrollo?</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="ag12" value="S" checked> SI</label>
+                  <label><input type="radio" name="ag12" value="N"> NO</label>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           6. DATOS PERSONALIZADOS
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> DATOS PERSONALIZADOS</div>
+
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Activos entregados</div>
+          <div class="sub-body">
+            <div class="field lbl-lg"><label>Se le entregó Computadora:</label>
+              <span class="radio-row">
+                <label><input type="radio" name="dp18" value="S"> SI</label>
+                <label><input type="radio" name="dp18" value="N"> NO</label>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Curiosidades</div>
+          <div class="sub-body">
+            <div class="field lbl-lg"><label>¿Es Hipertenso?:</label>
+              <span class="radio-row">
+                <label><input type="radio" name="dp16" value="S"> SI</label>
+                <label><input type="radio" name="dp16" value="N"> NO</label>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Información adicional</div>
+          <div class="sub-body">
+            <div class="field-grid">
+              <div class="field full lbl-xl"><label>¿Cuenta con exámen preocupacional?:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="dp1" value="S"> SI</label>
+                  <label><input type="radio" name="dp1" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field full lbl-xl"><label>Personal es externo:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="dp15" value="S"> SI</label>
+                  <label><input type="radio" name="dp15" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Fecha de finalización -preocupacional:</label><input type="date"></div>
+              <div class="field full lbl-xl"><label>¿Cuenta con exámen intraocupacional?:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="dp2" value="S"> SI</label>
+                  <label><input type="radio" name="dp2" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Fecha de finalización -intraocupacional:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>Fecha de vencimiento -examen intraocupacional:</label><input type="date"></div>
+              <div class="field full lbl-xl"><label>¿Cuenta con exámen postocupacional?:</label>
+                <span class="radio-row">
+                  <label><input type="radio" name="dp3" value="S"> SI</label>
+                  <label><input type="radio" name="dp3" value="N"> NO</label>
+                </span>
+              </div>
+              <div class="field lbl-xl"><label>Fecha de finalización -postocupacional:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de botines -2020?:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de camisas -2020?:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de pantalón -2020?:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de chamarra -2020?:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de casco -2020?:</label><input type="date"></div>
+              <div class="field lbl-xl"><label>¿Fecha de entrega de chaleco reflectivo-2020?:</label><input type="date"></div>
+              <div class="field full lbl-xl"><label>Fecha de aplicacion de la 3ra dosis de vacuna covid-19?:</label><input type="text" maxlength="1000"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           7. OTROS
+           ================================================================== -->
+      <div class="section">
+        <div class="group-header"><span class="tri">▾</span> OTROS</div>
+
+        <div class="subsection active">
+          <div class="sub-header"><span class="tri">▾</span> Histórico de cargos</div>
+          <div class="sub-body">
+            <div class="tabla-wrap" style="max-width:650px;">
+              <table class="tabla-rep">
+                <thead><tr><th style="width:110px;">Período</th><th>Cargo</th></tr></thead>
+                <tbody>
+                  <tr><td class="solo-lectura">----</td><td class="solo-lectura">----</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de botones inferior (el Salar la repite al pie) -->
+      <div class="toolbar" style="margin-top:12px;">
+        <button type="button" class="btn" onclick="expandAll(true)">Expandir todo <span class="caret">▾</span></button>
+        <button type="button" class="btn" onclick="expandAll(false)">Colapsar todo <span class="caret">▴</span></button>
+        <button type="button" class="btn" onclick="abrirModal('contrato-modal')">Emitir contrato</button>
+        <button type="button" class="btn" onclick="abrirModal('certificado-modal')">Emitir certificado</button>
+        <button type="button" class="btn">Guardar</button>
+        <button type="button" class="btn">Guardar y registrar otro</button>
+        <button type="button" class="btn">Exportar histórico</button>
+        <button type="button" class="btn">Volver</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================ MODALES ============================ -->
+<div class="modal-fondo" id="modal-fondo" onclick="cerrarModal()"></div>
+
+<!-- Emitir contrato -->
+<div class="modal" id="contrato-modal" role="dialog" aria-modal="true" aria-labelledby="contrato-titulo">
+  <div class="modal-titulo">
+    <span id="contrato-titulo">Emitir contrato</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <div class="field">
+      <label for="ddlModeloContrato">Modelo de contrato: <span class="req">(*)</span></label>
+      <select id="ddlModeloContrato" onchange="ocultarError(this)">
+        <option value="-1">&lt;SELECCIONE&gt;</option>
+        <option value="1706">Acuerdo de Capacitación</option>
+        <option value="1704">Adenda al contrato -Indefinido</option>
+        <option value="1705">Adenda al contrato -plazo fijo</option>
+        <option value="1703">Contrato a plazo fijo</option>
+        <option value="1702">Indefinido</option>
+      </select>
+    </div>
+    <div class="modal-error">Seleccione un modelo de contrato.</div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="emitir('contrato-modal', 'contrato')">Emitir</button>
+  </div>
+</div>
+
+<!-- Emitir certificado -->
+<div class="modal" id="certificado-modal" role="dialog" aria-modal="true" aria-labelledby="certificado-titulo">
+  <div class="modal-titulo">
+    <span id="certificado-titulo">Emitir certificado</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <div class="field">
+      <label for="ddlModeloCertificado">Modelo de certificado: <span class="req">(*)</span></label>
+      <select id="ddlModeloCertificado" onchange="ocultarError(this)">
+        <option value="-1">&lt;SELECCIONE&gt;</option>
+        <option value="1821">Agradecimiento por servicios -forzoso</option>
+        <option value="1819">Carta de renuncia voluntaria</option>
+        <option value="1823">Certificado de pasantías</option>
+        <option value="1824">Certificado de recomendación</option>
+        <option value="1816">Certificado de trabajo c/sueldo</option>
+        <option value="1815">Certificado de trabajo retirado</option>
+        <option value="1814">Certificado Trabajo Sueldo</option>
+        <option value="1820">Compromiso de mejora de desempeño</option>
+        <option value="1817">Comunicado examen post-ocupacional</option>
+        <option value="1826">Constancia de trabajo -COVID 19</option>
+        <option value="1825">Entrega de puesto de trabajo</option>
+        <option value="1818">Finalización de contrato a plazo fijo</option>
+        <option value="1822">Retiro forzoso -resultados financieros</option>
+      </select>
+    </div>
+    <div class="modal-error">Seleccione un modelo de certificado.</div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="emitir('certificado-modal', 'certificado')">Emitir</button>
+  </div>
+</div>
+
+<!-- Configurar ubicación GPS -->
+<div class="modal ancho" id="ubicacion-modal" role="dialog" aria-modal="true" aria-labelledby="ubicacion-titulo">
+  <div class="modal-titulo">
+    <span id="ubicacion-titulo">Configurar ubicación</span>
+    <button type="button" class="modal-cerrar" title="Cerrar" onclick="cerrarModal()">✕</button>
+  </div>
+
+  <div class="modal-cuerpo">
+    <!-- En el Salar acá va un Google Maps embebido. La maqueta no puede cargarlo
+         (necesita clave de API y conexión), así que se simula: se hace clic para
+         ubicar el punto y las coordenadas salen de interpolar la posición. -->
+    <div class="mapa-mock" id="mapa-mock" onclick="marcarUbicacion(event)">
+      <span class="mapa-pin" id="mapa-pin">📍</span>
+      <span class="mapa-nota">Mapa simulado — en el Salar es Google Maps</span>
+    </div>
+    <div class="mapa-coords" id="mapa-coords"></div>
+  </div>
+
+  <div class="modal-pie">
+    <button type="button" class="btn" onclick="guardarUbicacion()">Guardar</button>
+    <button type="button" class="btn" onclick="limpiarUbicacion()">Limpiar</button>
+  </div>
+</div>
+
+<script>
+  /* ---------- Acordeón ---------- */
+  document.addEventListener('click', function (e) {
+    var header = e.target.closest('.sub-header');
+    if (!header) return;
+    var section = header.parentElement;
+    section.classList.toggle('active');
+    var tri = header.querySelector('.tri');
+    if (tri) tri.textContent = section.classList.contains('active') ? '▾' : '▸';
+  });
+
+  function expandAll(open) {
+    document.querySelectorAll('.subsection').forEach(function (s) {
+      s.classList.toggle('active', open);
+      var tri = s.querySelector('.tri');
+      if (tri) tri.textContent = open ? '▾' : '▸';
+    });
+  }
+
+  /* ---------- Modal: configurar ubicación GPS ---------- */
+
+  // Punto elegido en el mapa, en % del recuadro. null = sin ubicación.
+  var gpsPunto = null;
+
+  // Recuadro sobre el que se interpolan las coordenadas del punto.
+  var GPS_AREA = { latArriba: -17.70, latAbajo: -17.86, lonIzq: -63.26, lonDer: -63.10 };
+
+  function abrirUbicacion() {
+    abrirModal('ubicacion-modal');
+    pintarUbicacion();
+  }
+
+  function marcarUbicacion(e) {
+    var caja = document.getElementById('mapa-mock').getBoundingClientRect();
+    gpsPunto = {
+      x: (e.clientX - caja.left) / caja.width * 100,
+      y: (e.clientY - caja.top) / caja.height * 100
+    };
+    pintarUbicacion();
+  }
+
+  function coordsUbicacion() {
+    if (!gpsPunto) return null;
+    return {
+      lat: GPS_AREA.latArriba + (GPS_AREA.latAbajo - GPS_AREA.latArriba) * gpsPunto.y / 100,
+      lon: GPS_AREA.lonIzq + (GPS_AREA.lonDer - GPS_AREA.lonIzq) * gpsPunto.x / 100
+    };
+  }
+
+  // Refresca el pin y la lectura de coordenadas dentro del diálogo.
+  function pintarUbicacion() {
+    var pin = document.getElementById('mapa-pin');
+    var lectura = document.getElementById('mapa-coords');
+    var c = coordsUbicacion();
+    if (!c) {
+      pin.style.display = 'none';
+      lectura.textContent = 'Sin ubicación seleccionada — haga clic en el mapa.';
+      return;
+    }
+    pin.style.display = 'block';
+    pin.style.left = gpsPunto.x + '%';
+    pin.style.top = gpsPunto.y + '%';
+    lectura.textContent = 'Latitud: ' + c.lat.toFixed(6) + '   Longitud: ' + c.lon.toFixed(6);
+  }
+
+  function limpiarUbicacion() {
+    gpsPunto = null;
+    pintarUbicacion();
+  }
+
+  // Vuelca las coordenadas al campo del formulario y cierra.
+  function guardarUbicacion() {
+    var c = coordsUbicacion();
+    document.getElementById('gps-lat').textContent = c ? c.lat.toFixed(6) : '----';
+    document.getElementById('gps-lon').textContent = c ? c.lon.toFixed(6) : '----';
+    cerrarModal();
+  }
+
+  /* ---------- Campos condicionales ---------- */
+
+  // Reingreso: Empresa y Colaborador sólo se muestran al responder SI.
+  function toggleReingreso(show) {
+    document.getElementById('reingreso-detalle').style.display = show ? 'grid' : 'none';
+  }
+
+  // Datos personales: "Nombre completo" sólo se muestra si se personaliza.
+  function toggleNombreCompleto(show) {
+    document.querySelectorAll('.nombrecompleto').forEach(function (el) {
+      el.style.display = show ? '' : 'none';
+    });
+  }
+
+  // Datos personales: muestra los campos del documento secundario.
+  function toggleDocSecundario(show) {
+    document.querySelectorAll('.doc-sec').forEach(function (el) {
+      el.style.display = show ? (el.classList.contains('sub-title') ? 'block' : 'flex') : 'none';
+    });
+  }
+
+  // AFP: "¿Aplica AFP? = NO" apaga NUA, Adm. pensiones y ¿Está jubilado? (forzado a NO).
+  // La fecha de jubilación y "¿Aporta a la AFP?" dependen además de "¿Está jubilado?":
+  // con NO quedan inactivos y el aporte vuelve a SI.
+  function refrescarAfp() {
+    var aplica = document.querySelector('input[name="aplicaafp"]:checked').value === 'S';
+
+    // Sin AFP, "¿Está jubilado?" vuelve a NO (y queda bloqueado como el resto).
+    if (!aplica) {
+      document.querySelectorAll('input[name="jubilado"]').forEach(function (r) {
+        r.checked = (r.value === 'N');
+      });
+    }
+    var jubilado = document.querySelector('input[name="jubilado"]:checked').value === 'S';
+
+    // "Sucursal para la AFP" y "Tipo de asegurado" quedan afuera: siguen activos
+    // aunque no se aplique AFP. El (*) de Adm. pensiones se oculta al apagarse.
+    document.querySelectorAll('#nua-afp, #adm-pensiones, input[name="jubilado"]').forEach(function (el) {
+      el.disabled = !aplica;
+    });
+    document.getElementById('adm-pensiones-req').style.display = aplica ? '' : 'none';
+
+    document.querySelectorAll('#fecha-jubilacion, input[name="aportaafp"]').forEach(function (el) {
+      el.disabled = !jubilado;
+    });
+    if (!jubilado) {
+      document.querySelectorAll('input[name="aportaafp"]').forEach(function (r) {
+        r.checked = (r.value === 'S');
+      });
+    }
+  }
+
+  // RC-IVA: sin planilla tributaria, el saldo y el período dejan de ser obligatorios
+  // (el Salar les saca el asterisco rojo).
+  function toggleRcIva(aplica) {
+    document.querySelectorAll('#saldo-rciva-req, #periodo-rciva-req').forEach(function (el) {
+      el.style.display = aplica ? '' : 'none';
+    });
+  }
+
+  // Horas extras: sin bono de horas extras, el cálculo por tiempo trabajado se
+  // bloquea y vuelve a NO.
+  function toggleCalcHE(aplica) {
+    document.querySelectorAll('input[name="hetiempo"]').forEach(function (r) {
+      r.disabled = !aplica;
+      if (!aplica) r.checked = (r.value === 'N');
+    });
+  }
+
+  // Marcaciones por app: sin marcaciones virtuales por la app, "¿Habilitar
+  // restricción?" se bloquea y vuelve a NO (lo que además oculta el tipo de marcación).
+  function toggleRestriccion(permite) {
+    document.querySelectorAll('input[name="habrestr"]').forEach(function (r) {
+      r.disabled = !permite;
+      if (!permite) r.checked = (r.value === 'N');
+    });
+    if (!permite) toggleTipoMarcacion(false);
+  }
+
+  // Restricción: el tipo de marcación permitida sólo aparece con restricción en SI.
+  function toggleTipoMarcacion(restringe) {
+    document.getElementById('tipo-marcacion').style.display = restringe ? '' : 'none';
+  }
+
+  // Horas extras: los coeficientes personalizados sólo aparecen al personalizarlos.
+  function toggleCoefHE(personaliza) {
+    document.querySelectorAll('.coef-he').forEach(function (el) {
+      el.style.display = personaliza ? 'flex' : 'none';
+    });
+  }
+
+  // Faltas: los multiplicadores personalizados sólo aparecen al personalizarlos.
+  function toggleMultFaltas(personaliza) {
+    document.querySelectorAll('.mult-faltas').forEach(function (el) {
+      el.style.display = personaliza ? 'flex' : 'none';
+    });
+  }
+
+  // Desempeño: los alcances sólo aparecen si se permite registrar objetivos.
+  function toggleAlcances(permite) {
+    document.getElementById('alcances-habilitados').style.display = permite ? 'flex' : 'none';
+  }
+
+  // Remuneración: la etiqueta del campo sigue al modo de quincena (Porcentaje/Monto).
+  function toggleModoQuincena(texto) {
+    document.getElementById('lbl-monto-quincena').textContent = texto;
+  }
+
+  // Marcaciones: sin control de ubicación, Latitud y Longitud se deshabilitan.
+  function toggleUbicMarc(controla) {
+    document.querySelectorAll('#ubic-lat, #ubic-lon').forEach(function (el) {
+      el.disabled = !controla;
+    });
+  }
+
+  // Caja de salud: sin caja no hay número de asegurado.
+  function toggleCajaSalud(aplica) {
+    document.getElementById('nro-asegurado-caja').disabled = !aplica;
+  }
+
+  // Retroactivo: con SI el bono de antigüedad queda forzado en SI y bloqueado;
+  // con NO se habilita y se puede elegir.
+  function toggleRetroBono(retro) {
+    document.querySelectorAll('input[name="retrobono"]').forEach(function (r) {
+      r.disabled = retro;
+      if (retro) r.checked = (r.value === 'S');
+    });
+  }
+
+  // Autenticación: las contraseñas sólo aplican al modo Interno; la cuenta de
+  // ingreso, sólo al modo Azure.
+  function toggleAuth(interno) {
+    document.querySelectorAll('.auth-interno').forEach(function (el) {
+      el.style.display = interno ? 'flex' : 'none';
+    });
+    document.querySelectorAll('.auth-azure').forEach(function (el) {
+      el.style.display = interno ? 'none' : 'flex';
+    });
+  }
+
+  /* ---------- Modales: emitir contrato / certificado ---------- */
+
+  // Abre el diálogo. Si trae un desplegable, arranca sin seleccionar (como el Salar).
+  function abrirModal(id) {
+    var modal = document.getElementById(id);
+    var sel = modal.querySelector('select');
+    var error = modal.querySelector('.modal-error');
+    if (sel) sel.selectedIndex = 0;
+    if (error) error.classList.remove('visible');
+    document.getElementById('modal-fondo').classList.add('abierto');
+    modal.classList.add('abierto');
+    if (sel) sel.focus();
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-fondo').classList.remove('abierto');
+    document.querySelectorAll('.modal').forEach(function (m) { m.classList.remove('abierto'); });
+  }
+
+  function ocultarError(sel) {
+    sel.closest('.modal').querySelector('.modal-error').classList.remove('visible');
+  }
+
+  // El modelo es obligatorio: sin él no se emite.
+  function emitir(id, que) {
+    var modal = document.getElementById(id);
+    var sel = modal.querySelector('select');
+    if (sel.value === '-1') {
+      modal.querySelector('.modal-error').classList.add('visible');
+      sel.focus();
+      return;
+    }
+    cerrarModal();
+    alert('Emitiendo ' + que + ': ' + sel.options[sel.selectedIndex].text);
+  }
+
+  // Esc cierra el diálogo abierto.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarModal();
+  });
+
+  /* ---------- Tablas repetibles ---------- */
+
+  // Agrega una fila vacía clonando la primera de la tabla indicada.
+  function agregarFila(idTabla) {
+    var tbody = document.getElementById(idTabla);
+    var fila = tbody.rows[0].cloneNode(true);
+    fila.querySelectorAll('input').forEach(function (i) {
+      if (i.type === 'radio' || i.type === 'checkbox') { i.checked = i.defaultChecked; }
+      else { i.value = ''; }
+    });
+    // Los radios de cada fila necesitan un name propio para no interferir.
+    var n = tbody.rows.length;
+    fila.querySelectorAll('input[type=radio]').forEach(function (r) { r.name = r.name + '_' + n; });
+    fila.querySelectorAll('select').forEach(function (s) { s.selectedIndex = 0; });
+    fila.querySelectorAll('textarea').forEach(function (t) { t.value = ''; });
+    tbody.appendChild(fila);
+  }
+
+  // Quita la fila del ✖ clickeado. Si es la última, sólo la limpia.
+  function quitarFila(x) {
+    var fila = x.closest('tr');
+    var tbody = fila.parentElement;
+    if (tbody.rows.length <= 1) {
+      fila.querySelectorAll('input').forEach(function (i) {
+        if (i.type === 'radio' || i.type === 'checkbox') { i.checked = i.defaultChecked; }
+        else { i.value = ''; }
+      });
+      fila.querySelectorAll('select').forEach(function (s) { s.selectedIndex = 0; });
+      fila.querySelectorAll('textarea').forEach(function (t) { t.value = ''; });
+      return;
+    }
+    fila.remove();
+  }
+
+  /* ---------- Numeración jerárquica ---------- */
+
+  // Numera automáticamente: grupo (1), subsección (1.1) y campo (1.1.1).
+  // Al ser automática, si se agrega o quita un campo la numeración se reajusta sola.
+  (function numerarFormulario() {
+    function ponerNumero(el, texto) {
+      var span = document.createElement('span');
+      span.className = 'num';
+      span.textContent = texto;
+      var tri = el.querySelector(':scope > .tri');
+      if (tri) el.insertBefore(span, tri.nextSibling);
+      else el.insertBefore(span, el.firstChild);
+    }
+
+    var grupo = 0;
+    document.querySelectorAll('.section').forEach(function (section) {
+      grupo++;
+      var gh = section.querySelector(':scope > .group-header');
+      if (gh) ponerNumero(gh, grupo + '.');
+
+      var sub = 0;
+      section.querySelectorAll('.subsection').forEach(function (subseccion) {
+        sub++;
+        var sh = subseccion.querySelector(':scope > .sub-header');
+        if (sh) ponerNumero(sh, grupo + '.' + sub);
+
+        var campo = 0;
+        subseccion.querySelectorAll('.field').forEach(function (field) {
+          var label = field.querySelector(':scope > label');
+          if (!label) return;
+          campo++;
+          ponerNumero(label, grupo + '.' + sub + '.' + campo + ' ');
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
